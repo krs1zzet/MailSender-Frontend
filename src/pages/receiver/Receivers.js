@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Receivers = () => {
@@ -12,6 +12,7 @@ const Receivers = () => {
         email: '', 
         groupName: '' 
     });
+    const [uploadAlert, setUploadAlert] = useState({ show: false, variant: '', message: '' });
 
     const fetchReceivers = async () => {
         try {
@@ -131,12 +132,105 @@ const Receivers = () => {
         }
     };
 
+    const handleExcelUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Check if file is an Excel file
+        if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+            setUploadAlert({
+                show: true,
+                variant: 'danger',
+                message: 'Please upload an Excel file (.xlsx or .xls)'
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/receivers/excel', {
+                method: 'POST',
+                body: formData,
+                mode: 'cors'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to upload Excel file');
+            }
+
+            setUploadAlert({
+                show: true,
+                variant: 'success',
+                message: 'Receivers imported successfully!'
+            });
+
+            // Refresh the receivers list
+            await fetchReceivers();
+
+            // Reset file input
+            event.target.value = '';
+        } catch (error) {
+            console.error('Error uploading Excel:', error);
+            setUploadAlert({
+                show: true,
+                variant: 'danger',
+                message: `Failed to upload: ${error.message}`
+            });
+        }
+
+        // Hide alert after 5 seconds
+        setTimeout(() => {
+            setUploadAlert({ show: false, variant: '', message: '' });
+        }, 5000);
+    };
+
     return (
         <div className="container mt-4">
             <h2>Receivers</h2>
-            <Button variant="primary" onClick={handleShow} className="mb-3">
-                Add New Receiver
-            </Button>
+            
+            {/* Alert for Excel upload feedback */}
+            {uploadAlert.show && (
+                <Alert 
+                    variant={uploadAlert.variant} 
+                    onClose={() => setUploadAlert({ show: false })} 
+                    dismissible
+                    className="mb-3"
+                >
+                    {uploadAlert.message}
+                </Alert>
+            )}
+
+            <div className="d-flex justify-content-between mb-3">
+                <Button variant="primary" onClick={handleShow}>
+                    Add New Receiver
+                </Button>
+                
+                {/* Excel upload button */}
+                <div className="d-flex align-items-center">
+                    <Form.Label 
+                        htmlFor="excel-upload" 
+                        className="mb-0 me-2"
+                    >
+                        Import from Excel:
+                    </Form.Label>
+                    <Form.Control
+                        type="file"
+                        id="excel-upload"
+                        accept=".xlsx,.xls"
+                        onChange={handleExcelUpload}
+                        style={{ display: 'none' }}
+                    />
+                    <Button 
+                        variant="success" 
+                        onClick={() => document.getElementById('excel-upload').click()}
+                    >
+                        Upload Excel
+                    </Button>
+                </div>
+            </div>
 
             <Table striped bordered hover>
                 <thead>
