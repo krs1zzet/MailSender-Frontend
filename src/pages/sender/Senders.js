@@ -7,7 +7,11 @@ const Senders = () => {
     const [senders, setSenders] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
-    const [currentSender, setCurrentSender] = useState({ fname: '', lname: '', email: '' });
+    const [currentSender, setCurrentSender] = useState({ 
+        email: '', 
+        password: '',
+        id: null 
+    });
     const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
     const { eventId } = useParams();
     const navigate = useNavigate();
@@ -41,19 +45,37 @@ const Senders = () => {
     };
 
     useEffect(() => {
-        fetchSenders();
-    }, []);
+        const storedEvent = localStorage.getItem('selectedEvent');
+        if (storedEvent) {
+            const parsedEvent = JSON.parse(storedEvent);
+            if (parsedEvent.id.toString() === eventId) {
+                fetchSenders();
+            } else {
+                navigate('/');
+            }
+        } else {
+            navigate('/');
+        }
+    }, [eventId, navigate]);
 
     const handleClose = () => {
         setShowModal(false);
         setEditMode(false);
-        setCurrentSender({ fname: '', lname: '', email: '' });
+        setCurrentSender({ 
+            email: '', 
+            password: '',
+            id: null 
+        });
     };
 
     const handleShow = () => setShowModal(true);
 
     const handleEdit = (sender) => {
-        setCurrentSender(sender);
+        setCurrentSender({
+            id: sender.id || null,
+            email: sender.email || '',
+            password: '' // Don't show existing password
+        });
         setEditMode(true);
         setShowModal(true);
     };
@@ -68,9 +90,8 @@ const Senders = () => {
             const method = editMode ? 'PUT' : 'POST';
             
             const senderData = {
-                fname: currentSender.fname,
-                lname: currentSender.lname,
                 email: currentSender.email,
+                password: currentSender.password,
                 eventId: parseInt(eventId)
             };
             
@@ -112,21 +133,31 @@ const Senders = () => {
                     mode: 'cors'
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                fetchSenders();
+                showAlert('success', 'Sender deleted successfully!');
+                await fetchSenders();
             } catch (error) {
                 console.error('Error deleting sender:', error);
-                alert('Failed to delete sender. Please try again.');
+                showAlert('danger', 'Failed to delete sender. Please try again.');
             }
         }
     };
 
     return (
         <div className="container mt-4">
-            <h2>Senders</h2>
+            <h2>Email Senders</h2>
+            
+            {alert.show && (
+                <Alert 
+                    variant={alert.variant} 
+                    onClose={() => setAlert({ show: false })} 
+                    dismissible
+                >
+                    {alert.message}
+                </Alert>
+            )}
+
             <Button variant="primary" onClick={handleShow} className="mb-3">
                 Add New Sender
             </Button>
@@ -134,18 +165,18 @@ const Senders = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
                         <th>Email</th>
+                        <th>Created At</th>
+                        <th>Last Used</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {senders.map((sender) => (
                         <tr key={sender.id}>
-                            <td>{sender.fname}</td>
-                            <td>{sender.lname}</td>
                             <td>{sender.email}</td>
+                            <td>{new Date(sender.createdAt).toLocaleString()}</td>
+                            <td>{new Date(sender.lastUsedAt).toLocaleString()}</td>
                             <td>
                                 <Button 
                                     variant="info" 
@@ -175,43 +206,33 @@ const Senders = () => {
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
-                            <Form.Label>First Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter first name"
-                                value={currentSender.fname}
-                                onChange={(e) => setCurrentSender({
-                                    ...currentSender,
-                                    fname: e.target.value
-                                })}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Last Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter last name"
-                                value={currentSender.lname}
-                                onChange={(e) => setCurrentSender({
-                                    ...currentSender,
-                                    lname: e.target.value
-                                })}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
                                 placeholder="Enter email"
-                                value={currentSender.email}
+                                value={currentSender.email || ''}
                                 onChange={(e) => setCurrentSender({
                                     ...currentSender,
                                     email: e.target.value
                                 })}
                                 required
                             />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>App Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                placeholder="Enter app password"
+                                value={currentSender.password || ''}
+                                onChange={(e) => setCurrentSender({
+                                    ...currentSender,
+                                    password: e.target.value
+                                })}
+                                required
+                            />
+                            <Form.Text className="text-muted">
+                                Enter your Gmail App Password. You can generate one from your Google Account settings.
+                            </Form.Text>
                         </Form.Group>
                         <div className="d-flex justify-content-end gap-2">
                             <Button variant="secondary" onClick={handleClose}>

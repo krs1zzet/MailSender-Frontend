@@ -10,6 +10,8 @@ const MailTemplates = () => {
     const [currentTemplate, setCurrentTemplate] = useState({ header: '', body: '' });
     const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
     const [event, setEvent] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const { eventId } = useParams();
     const navigate = useNavigate();
 
@@ -29,15 +31,23 @@ const MailTemplates = () => {
                 mode: 'cors'
             });
             
+            if (response.status === 404) {
+                setTemplates([]);
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
-            setTemplates(data);
+            setTemplates(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching templates:', error);
+            setError('Failed to fetch templates. Please try again later.');
             showAlert('danger', 'Failed to fetch templates. Please ensure the backend server is running.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -54,7 +64,7 @@ const MailTemplates = () => {
         } else {
             navigate('/');
         }
-    }, [eventId, navigate, fetchTemplates]);
+    }, [eventId, navigate]);
 
     const handleClose = () => {
         setShowModal(false);
@@ -141,7 +151,7 @@ const MailTemplates = () => {
     return (
         <Container className="mt-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>Mail Templates - {event.name}</h2>
+                <h2>Mail Templates - {event?.name}</h2>
                 <Button variant="primary" onClick={handleShow}>
                     Create New Template
                 </Button>
@@ -157,40 +167,52 @@ const MailTemplates = () => {
                 </Alert>
             )}
 
-            <Row>
-                {templates.map((template) => (
-                    <Col md={6} lg={4} xl={3} key={template.id} className="mb-4">
-                        <Card 
-                            className="h-100 hover-shadow"
-                            style={{ transition: 'transform 0.2s' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Card.Body>
-                                <Card.Title>{template.header}</Card.Title>
-                                <Card.Text className="text-muted">
-                                    {template.body}
-                                </Card.Text>
-                            </Card.Body>
-                            <Card.Footer className="bg-transparent border-0 d-flex justify-content-between">
-                                <Button 
-                                    variant="outline-primary" 
-                                    className="me-2"
-                                    onClick={() => handleEdit(template)}
-                                >
-                                    Edit
-                                </Button>
-                                <Button 
-                                    variant="outline-danger"
-                                    onClick={() => handleDelete(template.id)}
-                                >
-                                    Delete
-                                </Button>
-                            </Card.Footer>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            {isLoading ? (
+                <div className="text-center">
+                    <span>Loading templates...</span>
+                </div>
+            ) : error ? (
+                <Alert variant="danger">{error}</Alert>
+            ) : templates.length === 0 ? (
+                <Alert variant="info">
+                    No templates found. Click "Create New Template" to add one.
+                </Alert>
+            ) : (
+                <Row>
+                    {templates.map((template) => (
+                        <Col md={6} lg={4} xl={3} key={template.id} className="mb-4">
+                            <Card 
+                                className="h-100 hover-shadow"
+                                style={{ transition: 'transform 0.2s' }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <Card.Body>
+                                    <Card.Title>{template.header}</Card.Title>
+                                    <Card.Text className="text-muted">
+                                        {template.body}
+                                    </Card.Text>
+                                </Card.Body>
+                                <Card.Footer className="bg-transparent border-0 d-flex justify-content-between">
+                                    <Button 
+                                        variant="outline-primary" 
+                                        className="me-2"
+                                        onClick={() => handleEdit(template)}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button 
+                                        variant="outline-danger"
+                                        onClick={() => handleDelete(template.id)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </Card.Footer>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            )}
 
             <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
