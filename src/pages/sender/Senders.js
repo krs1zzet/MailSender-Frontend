@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Senders = () => {
@@ -7,10 +8,18 @@ const Senders = () => {
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentSender, setCurrentSender] = useState({ fname: '', lname: '', email: '' });
+    const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
+    const { eventId } = useParams();
+    const navigate = useNavigate();
+
+    const showAlert = (variant, message) => {
+        setAlert({ show: true, variant, message });
+        setTimeout(() => setAlert({ show: false }), 5000);
+    };
 
     const fetchSenders = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/senderers', {
+            const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -27,7 +36,7 @@ const Senders = () => {
             setSenders(data);
         } catch (error) {
             console.error('Error fetching senders:', error);
-            alert('Failed to fetch senders. Please ensure the backend server is running.');
+            showAlert('danger', 'Failed to fetch senders. Please ensure the backend server is running.');
         }
     };
 
@@ -53,13 +62,19 @@ const Senders = () => {
         e.preventDefault();
         try {
             const url = editMode 
-                ? `http://localhost:8080/api/senderers/${currentSender.id}`
-                : 'http://localhost:8080/api/senderers';
+                ? `http://localhost:8080/api/senders/${currentSender.id}`
+                : 'http://localhost:8080/api/senders';
             
             const method = editMode ? 'PUT' : 'POST';
             
-            console.log('Sending request to:', url);
-            console.log('Request payload:', currentSender);
+            const senderData = {
+                fname: currentSender.fname,
+                lname: currentSender.lname,
+                email: currentSender.email,
+                eventId: parseInt(eventId)
+            };
+            
+            console.log('Sending sender data:', senderData);
             
             const response = await fetch(url, {
                 method: method,
@@ -67,45 +82,28 @@ const Senders = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(currentSender),
+                body: JSON.stringify(senderData),
                 mode: 'cors'
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData));
             }
 
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const responseData = await response.json();
-                console.log('Success response:', responseData);
-            } else {
-                console.log('Success response (no content)');
-            }
-
+            showAlert('success', `Sender ${editMode ? 'updated' : 'created'} successfully!`);
             await fetchSenders();
             handleClose();
-            setCurrentSender({ fname: '', lname: '', email: '' });
         } catch (error) {
-            console.error('Detailed error:', error);
-            if (!window.navigator.onLine) {
-                alert('No internet connection. Please check your network.');
-            } else if (error.message === 'Failed to fetch') {
-                alert('Cannot connect to the server. Please ensure:\n1. Backend server is running on localhost:8080\n2. No CORS issues\n3. Server endpoints are correct');
-            } else if (error instanceof SyntaxError) {
-                alert('Received invalid response from server. Please check server logs.');
-            } else {
-                alert(`Failed to save the sender: ${error.message}`);
-            }
+            console.error('Error saving sender:', error);
+            showAlert('danger', `Failed to save sender: ${error.message}`);
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this sender?')) {
             try {
-                const response = await fetch(`http://localhost:8080/api/senderers/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/senders/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Receivers = () => {
@@ -10,13 +11,21 @@ const Receivers = () => {
         fname: '', 
         lname: '', 
         email: '', 
-        groupName: '' 
+        groupName: '',
+        id: null
     });
-    const [uploadAlert, setUploadAlert] = useState({ show: false, variant: '', message: '' });
+    const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
+    const { eventId } = useParams();
+    const navigate = useNavigate();
+
+    const showAlert = (variant, message) => {
+        setAlert({ show: true, variant, message });
+        setTimeout(() => setAlert({ show: false }), 5000);
+    };
 
     const fetchReceivers = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/receivers', {
+            const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -33,24 +42,46 @@ const Receivers = () => {
             setReceivers(data);
         } catch (error) {
             console.error('Error fetching receivers:', error);
-            alert('Failed to fetch receivers. Please ensure the backend server is running.');
+            showAlert('danger', 'Failed to fetch receivers. Please ensure the backend server is running.');
         }
     };
 
     useEffect(() => {
-        fetchReceivers();
-    }, []);
+        const storedEvent = localStorage.getItem('selectedEvent');
+        if (storedEvent) {
+            const parsedEvent = JSON.parse(storedEvent);
+            if (parsedEvent.id.toString() === eventId) {
+                fetchReceivers();
+            } else {
+                navigate('/');
+            }
+        } else {
+            navigate('/');
+        }
+    }, [eventId, navigate]);
 
     const handleClose = () => {
         setShowModal(false);
         setEditMode(false);
-        setCurrentReceiver({ fname: '', lname: '', email: '', groupName: '' });
+        setCurrentReceiver({ 
+            fname: '', 
+            lname: '', 
+            email: '', 
+            groupName: '',
+            id: null
+        });
     };
 
     const handleShow = () => setShowModal(true);
 
     const handleEdit = (receiver) => {
-        setCurrentReceiver(receiver);
+        setCurrentReceiver({
+            id: receiver.id || null,
+            fname: receiver.fname || '',
+            lname: receiver.lname || '',
+            email: receiver.email || '',
+            groupName: receiver.groupName || ''
+        });
         setEditMode(true);
         setShowModal(true);
     };
@@ -64,8 +95,15 @@ const Receivers = () => {
             
             const method = editMode ? 'PUT' : 'POST';
             
-            console.log('Sending request to:', url);
-            console.log('Request payload:', currentReceiver);
+            // Include eventId in the receiver data
+            const receiverData = {
+                fname: currentReceiver.fname,
+                lname: currentReceiver.lname,
+                email: currentReceiver.email,
+                eventId: parseInt(eventId)
+            };
+            
+            console.log('Sending receiver data:', receiverData);
             
             const response = await fetch(url, {
                 method: method,
@@ -73,38 +111,21 @@ const Receivers = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(currentReceiver),
+                body: JSON.stringify(receiverData),
                 mode: 'cors'
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData));
             }
 
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const responseData = await response.json();
-                console.log('Success response:', responseData);
-            } else {
-                console.log('Success response (no content)');
-            }
-
+            showAlert('success', `Receiver ${editMode ? 'updated' : 'created'} successfully!`);
             await fetchReceivers();
             handleClose();
-            setCurrentReceiver({ fname: '', lname: '', email: '', groupName: '' });
         } catch (error) {
-            console.error('Detailed error:', error);
-            if (!window.navigator.onLine) {
-                alert('No internet connection. Please check your network.');
-            } else if (error.message === 'Failed to fetch') {
-                alert('Cannot connect to the server. Please ensure:\n1. Backend server is running on localhost:8080\n2. No CORS issues\n3. Server endpoints are correct');
-            } else if (error instanceof SyntaxError) {
-                alert('Received invalid response from server. Please check server logs.');
-            } else {
-                alert(`Failed to save the receiver: ${error.message}`);
-            }
+            console.error('Error saving receiver:', error);
+            showAlert('danger', `Failed to save receiver: ${error.message}`);
         }
     };
 
@@ -132,22 +153,13 @@ const Receivers = () => {
         }
     };
 
-    const handleExcelUpload = async (event) => {
-        const file = event.target.files[0];
+    const handleExcelUpload = async (e) => {
+        const file = e.target.files[0];
         if (!file) return;
-
-        // Check if file is an Excel file
-        if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-            setUploadAlert({
-                show: true,
-                variant: 'danger',
-                message: 'Please upload an Excel file (.xlsx or .xls)'
-            });
-            return;
-        }
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('eventId', eventId); // Add eventId to form data
 
         try {
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
@@ -157,49 +169,29 @@ const Receivers = () => {
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Failed to upload Excel file');
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData));
             }
 
-            setUploadAlert({
-                show: true,
-                variant: 'success',
-                message: 'Receivers imported successfully!'
-            });
-
-            // Refresh the receivers list
+            showAlert('success', 'Receivers imported successfully!');
             await fetchReceivers();
-
-            // Reset file input
-            event.target.value = '';
         } catch (error) {
             console.error('Error uploading Excel:', error);
-            setUploadAlert({
-                show: true,
-                variant: 'danger',
-                message: `Failed to upload: ${error.message}`
-            });
+            showAlert('danger', `Failed to import receivers: ${error.message}`);
         }
-
-        // Hide alert after 5 seconds
-        setTimeout(() => {
-            setUploadAlert({ show: false, variant: '', message: '' });
-        }, 5000);
     };
 
     return (
         <div className="container mt-4">
             <h2>Receivers</h2>
             
-            {/* Alert for Excel upload feedback */}
-            {uploadAlert.show && (
+            {alert.show && (
                 <Alert 
-                    variant={uploadAlert.variant} 
-                    onClose={() => setUploadAlert({ show: false })} 
+                    variant={alert.variant} 
+                    onClose={() => setAlert({ show: false })} 
                     dismissible
-                    className="mb-3"
                 >
-                    {uploadAlert.message}
+                    {alert.message}
                 </Alert>
             )}
 
@@ -282,7 +274,7 @@ const Receivers = () => {
                             <Form.Control
                                 type="text"
                                 placeholder="Enter first name"
-                                value={currentReceiver.fname}
+                                value={currentReceiver.fname || ''}
                                 onChange={(e) => setCurrentReceiver({
                                     ...currentReceiver,
                                     fname: e.target.value
@@ -295,7 +287,7 @@ const Receivers = () => {
                             <Form.Control
                                 type="text"
                                 placeholder="Enter last name"
-                                value={currentReceiver.lname}
+                                value={currentReceiver.lname || ''}
                                 onChange={(e) => setCurrentReceiver({
                                     ...currentReceiver,
                                     lname: e.target.value
@@ -308,7 +300,7 @@ const Receivers = () => {
                             <Form.Control
                                 type="email"
                                 placeholder="Enter email"
-                                value={currentReceiver.email}
+                                value={currentReceiver.email || ''}
                                 onChange={(e) => setCurrentReceiver({
                                     ...currentReceiver,
                                     email: e.target.value
@@ -321,12 +313,11 @@ const Receivers = () => {
                             <Form.Control
                                 type="text"
                                 placeholder="Enter group name"
-                                value={currentReceiver.groupName}
+                                value={currentReceiver.groupName || ''}
                                 onChange={(e) => setCurrentReceiver({
                                     ...currentReceiver,
                                     groupName: e.target.value
                                 })}
-                                required
                             />
                         </Form.Group>
                         <div className="d-flex justify-content-end gap-2">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const MailTemplates = () => {
@@ -7,10 +8,19 @@ const MailTemplates = () => {
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [currentTemplate, setCurrentTemplate] = useState({ header: '', body: '' });
+    const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
+    const [event, setEvent] = useState(null);
+    const { eventId } = useParams();
+    const navigate = useNavigate();
+
+    const showAlert = (variant, message) => {
+        setAlert({ show: true, variant, message });
+        setTimeout(() => setAlert({ show: false }), 5000);
+    };
 
     const fetchTemplates = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/mails', {
+            const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -27,13 +37,24 @@ const MailTemplates = () => {
             setTemplates(data);
         } catch (error) {
             console.error('Error fetching templates:', error);
-            alert('Failed to fetch templates. Please ensure the backend server is running.');
+            showAlert('danger', 'Failed to fetch templates. Please ensure the backend server is running.');
         }
     };
 
     useEffect(() => {
-        fetchTemplates();
-    }, []);
+        const storedEvent = localStorage.getItem('selectedEvent');
+        if (storedEvent) {
+            const parsedEvent = JSON.parse(storedEvent);
+            if (parsedEvent.id.toString() === eventId) {
+                setEvent(parsedEvent);
+                fetchTemplates();
+            } else {
+                navigate('/');
+            }
+        } else {
+            navigate('/');
+        }
+    }, [eventId, navigate, fetchTemplates]);
 
     const handleClose = () => {
         setShowModal(false);
@@ -53,13 +74,18 @@ const MailTemplates = () => {
         e.preventDefault();
         try {
             const url = editMode 
-                ? `http://localhost:8080/api/mails/${currentTemplate.id}`
-                : 'http://localhost:8080/api/mails';
+                ? `http://localhost:8080/api/mailTemplates/${currentTemplate.id}`
+                : 'http://localhost:8080/api/mailTemplates';
             
             const method = editMode ? 'PUT' : 'POST';
             
-            console.log('Sending request to:', url);
-            console.log('Request payload:', currentTemplate);
+            const templateData = {
+                header: currentTemplate.header,
+                body: currentTemplate.body,
+                eventId: parseInt(eventId)
+            };
+            
+            console.log('Sending template data:', templateData);
             
             const response = await fetch(url, {
                 method: method,
@@ -67,45 +93,28 @@ const MailTemplates = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(currentTemplate),
+                body: JSON.stringify(templateData),
                 mode: 'cors'
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData));
             }
 
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const responseData = await response.json();
-                console.log('Success response:', responseData);
-            } else {
-                console.log('Success response (no content)');
-            }
-
+            showAlert('success', `Template ${editMode ? 'updated' : 'created'} successfully!`);
             await fetchTemplates();
             handleClose();
-            setCurrentTemplate({ header: '', body: '' });
         } catch (error) {
-            console.error('Detailed error:', error);
-            if (!window.navigator.onLine) {
-                alert('No internet connection. Please check your network.');
-            } else if (error.message === 'Failed to fetch') {
-                alert('Cannot connect to the server. Please ensure:\n1. Backend server is running on localhost:8080\n2. No CORS issues\n3. Server endpoints are correct');
-            } else if (error instanceof SyntaxError) {
-                alert('Received invalid response from server. Please check server logs.');
-            } else {
-                alert(`Failed to save the template: ${error.message}`);
-            }
+            console.error('Error saving template:', error);
+            showAlert('danger', `Failed to save template: ${error.message}`);
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this template?')) {
             try {
-                const response = await fetch(`http://localhost:8080/api/mails/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/mailTemplates/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -114,62 +123,79 @@ const MailTemplates = () => {
                     mode: 'cors'
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                fetchTemplates();
+                showAlert('success', 'Template deleted successfully!');
+                await fetchTemplates();
             } catch (error) {
                 console.error('Error deleting template:', error);
-                alert('Failed to delete template. Please try again.');
+                showAlert('danger', 'Failed to delete template. Please try again.');
             }
         }
     };
 
-    return (
-        <div className="container mt-4">
-            <h2>Mail Templates</h2>
-            <Button variant="primary" onClick={handleShow} className="mb-3">
-                Add New Template
-            </Button>
+    if (!event) {
+        return <div>Loading...</div>;
+    }
 
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Header</th>
-                        <th>Body</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {templates.map((template) => (
-                        <tr key={template.id}>
-                            <td>{template.header}</td>
-                            <td>{template.body}</td>
-                            <td>
+    return (
+        <Container className="mt-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>Mail Templates - {event.name}</h2>
+                <Button variant="primary" onClick={handleShow}>
+                    Create New Template
+                </Button>
+            </div>
+
+            {alert.show && (
+                <Alert 
+                    variant={alert.variant} 
+                    onClose={() => setAlert({ show: false })} 
+                    dismissible
+                >
+                    {alert.message}
+                </Alert>
+            )}
+
+            <Row>
+                {templates.map((template) => (
+                    <Col md={6} lg={4} xl={3} key={template.id} className="mb-4">
+                        <Card 
+                            className="h-100 hover-shadow"
+                            style={{ transition: 'transform 0.2s' }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <Card.Body>
+                                <Card.Title>{template.header}</Card.Title>
+                                <Card.Text className="text-muted">
+                                    {template.body}
+                                </Card.Text>
+                            </Card.Body>
+                            <Card.Footer className="bg-transparent border-0 d-flex justify-content-between">
                                 <Button 
-                                    variant="info" 
+                                    variant="outline-primary" 
                                     className="me-2"
                                     onClick={() => handleEdit(template)}
                                 >
                                     Edit
                                 </Button>
                                 <Button 
-                                    variant="danger"
+                                    variant="outline-danger"
                                     onClick={() => handleDelete(template.id)}
                                 >
                                     Delete
                                 </Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+                            </Card.Footer>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
 
             <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {editMode ? 'Edit Template' : 'Add New Template'}
+                        {editMode ? 'Edit Template' : 'Create New Template'}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -206,13 +232,13 @@ const MailTemplates = () => {
                                 Cancel
                             </Button>
                             <Button variant="primary" type="submit">
-                                {editMode ? 'Save Changes' : 'Add Template'}
+                                {editMode ? 'Save Changes' : 'Create Template'}
                             </Button>
                         </div>
                     </Form>
                 </Modal.Body>
             </Modal>
-        </div>
+        </Container>
     );
 };
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
-import HomePage from './pages/home/HomePage';
+import Events from './pages/event/Events';
+import EventOperations from './pages/event/EventOperations';
 import SendMail from './pages/mail/SendMail';
 import MailTemplates from './pages/mail/MailTemplates';
 import Senders from './pages/sender/Senders';
@@ -14,11 +15,12 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<RootLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="send-mail" element={<SendMail />} />
-          <Route path="templates" element={<MailTemplates />} />
-          <Route path="senders" element={<Senders />} />
-          <Route path="receivers" element={<Receivers />} />
+          <Route index element={<Events />} />
+          <Route path="events/:eventId" element={<EventOperations />} />
+          <Route path="events/:eventId/templates" element={<MailTemplates />} />
+          <Route path="events/:eventId/senders" element={<Senders />} />
+          <Route path="events/:eventId/receivers" element={<Receivers />} />
+          <Route path="events/:eventId/send-mail" element={<SendMail />} />
           <Route path="*" element={<ErrorPage />} />
         </Route>
       </Routes>

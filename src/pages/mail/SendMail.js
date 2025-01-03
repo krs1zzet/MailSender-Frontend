@@ -42,7 +42,7 @@ const SendMail = () => {
 
     const fetchSenders = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/senderers', {
+            const response = await fetch('http://localhost:8080/api/senders', {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
