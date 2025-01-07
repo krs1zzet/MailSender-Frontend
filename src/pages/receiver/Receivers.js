@@ -159,7 +159,7 @@ const Receivers = () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('eventId', eventId); // Add eventId to form data
+        formData.append('id', eventId); // Add eventId as 'id' parameter
 
         try {
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
@@ -174,11 +174,27 @@ const Receivers = () => {
             }
 
             showAlert('success', 'Receivers imported successfully!');
-            await fetchReceivers();
+            await fetchReceivers(); // Refresh the receivers list
+            e.target.value = ''; // Reset file input
         } catch (error) {
             console.error('Error uploading Excel:', error);
             showAlert('danger', `Failed to import receivers: ${error.message}`);
         }
+    };
+
+    // Add file input validation
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Check if file is an Excel or CSV file
+        if (!file.name.match(/\.(xlsx|xls|csv)$/)) {
+            showAlert('danger', 'Please select an Excel (.xlsx, .xls) or CSV (.csv) file');
+            e.target.value = '';
+            return;
+        }
+
+        handleExcelUpload(e);
     };
 
     return (
@@ -200,27 +216,45 @@ const Receivers = () => {
                     Add New Receiver
                 </Button>
                 
-                {/* Excel upload button */}
-                <div className="d-flex align-items-center">
-                    <Form.Label 
-                        htmlFor="excel-upload" 
-                        className="mb-0 me-2"
-                    >
-                        Import from Excel:
-                    </Form.Label>
-                    <Form.Control
-                        type="file"
-                        id="excel-upload"
-                        accept=".xlsx,.xls"
-                        onChange={handleExcelUpload}
-                        style={{ display: 'none' }}
-                    />
-                    <Button 
-                        variant="success" 
-                        onClick={() => document.getElementById('excel-upload').click()}
-                    >
-                        Upload Excel
-                    </Button>
+                <div className="d-flex align-items-center gap-3">
+                    <Form.Group>
+                        <Form.Label 
+                            htmlFor="file-upload" 
+                            className="mb-0 me-2"
+                        >
+                            Import from file:
+                        </Form.Label>
+                        <Form.Control
+                            type="file"
+                            id="file-upload"
+                            accept=".xlsx,.xls,.csv"
+                            onChange={handleFileSelect}
+                            style={{ display: 'none' }}
+                        />
+                        <div className="d-flex gap-2">
+                            <Button 
+                                variant="success" 
+                                onClick={() => document.getElementById('file-upload').click()}
+                            >
+                                Upload File
+                            </Button>
+                            <Button 
+                                variant="outline-secondary" 
+                                size="sm"
+                                onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = '/templates/receivers_template.xlsx'; // Add your template file path
+                                    link.download = 'receivers_template.xlsx';
+                                    link.click();
+                                }}
+                            >
+                                Download Template
+                            </Button>
+                        </div>
+                        <Form.Text className="text-muted">
+                            Supported formats: Excel (.xlsx, .xls) and CSV (.csv)
+                        </Form.Text>
+                    </Form.Group>
                 </div>
             </div>
 
