@@ -197,6 +197,43 @@ const Receivers = () => {
         handleExcelUpload(e);
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/receivers/excel', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.ms-excel'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to download template');
+            }
+
+            // Create blob from response
+            const blob = await response.blob();
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'receivers_template.xlsx';
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            showAlert('success', 'Template downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading template:', error);
+            showAlert('danger', 'Failed to download template');
+        }
+    };
+
     return (
         <div className="container mt-4">
             <h2>Receivers</h2>
@@ -240,13 +277,7 @@ const Receivers = () => {
                             </Button>
                             <Button 
                                 variant="outline-secondary" 
-                                size="sm"
-                                onClick={() => {
-                                    const link = document.createElement('a');
-                                    link.href = '/templates/receivers_template.xlsx'; // Add your template file path
-                                    link.download = 'receivers_template.xlsx';
-                                    link.click();
-                                }}
+                                onClick={handleDownloadTemplate}
                             >
                                 Download Template
                             </Button>
