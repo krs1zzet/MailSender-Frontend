@@ -17,6 +17,7 @@ const Receivers = () => {
     const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
     const { eventId } = useParams();
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
     const showAlert = (variant, message) => {
         setAlert({ show: true, variant, message });
@@ -24,10 +25,13 @@ const Receivers = () => {
     };
 
     const fetchReceivers = async () => {
+        const token = localStorage.getItem('token');
+        console.log('Retrieved token:', token); // Debugging line
         try {
             const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 method: 'GET',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -42,6 +46,7 @@ const Receivers = () => {
             setReceivers(data);
         } catch (error) {
             console.error('Error fetching receivers:', error);
+            setError(error);
             showAlert('danger', 'Failed to fetch receivers. Please ensure the backend server is running.');
         }
     };
@@ -105,9 +110,13 @@ const Receivers = () => {
             
             console.log('Sending receiver data:', receiverData);
             
+            const token = localStorage.getItem('token');
+            console.log('Retrieved token:', token); // Debugging line
+            
             const response = await fetch(url, {
                 method: method,
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
@@ -132,9 +141,12 @@ const Receivers = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this receiver?')) {
             try {
+                const token = localStorage.getItem('token');
+                console.log('Retrieved token:', token); // Debugging line
                 const response = await fetch(`http://localhost:8080/api/receivers/${id}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
@@ -162,9 +174,15 @@ const Receivers = () => {
         formData.append('id', eventId); // Add eventId as 'id' parameter
 
         try {
+            const token = localStorage.getItem('token');
+            console.log('Retrieved token:', token); // Debugging line
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
                 mode: 'cors'
             });
 
@@ -199,9 +217,12 @@ const Receivers = () => {
 
     const handleDownloadTemplate = async () => {
         try {
+            const token = localStorage.getItem('token');
+            console.log('Retrieved token:', token); // Debugging line
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
                 method: 'GET',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.ms-excel'
                 }
             });
@@ -233,6 +254,10 @@ const Receivers = () => {
             showAlert('danger', 'Failed to download template');
         }
     };
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
     return (
         <div className="container mt-4">

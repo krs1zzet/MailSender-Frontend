@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
 import Events from './pages/event/Events';
@@ -8,9 +8,28 @@ import MailTemplates from './pages/mail/MailTemplates';
 import Senders from './pages/sender/Senders';
 import Receivers from './pages/receiver/Receivers';
 import ErrorPage from './pages/error/ErrorPage';
+import AuthForm from './AuthForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is already authenticated
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+  };
+
+  if (!isAuthenticated) {
+    return <AuthForm onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
