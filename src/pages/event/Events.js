@@ -13,6 +13,7 @@ const Events = () => {
         date: '',
         password: ''
     });
+    const token = localStorage.getItem('token');
     const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
     const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ const Events = () => {
             const response = await fetch('http://localhost:8080/api/events', {
                 method: 'GET',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -72,6 +74,7 @@ const Events = () => {
             const response = await fetch(url, {
                 method: method,
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
@@ -99,6 +102,7 @@ const Events = () => {
                 const response = await fetch(`http://localhost:8080/api/events/${id}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },

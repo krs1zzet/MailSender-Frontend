@@ -20,12 +20,13 @@ const Senders = () => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false }), 5000);
     };
-
+    const token = localStorage.getItem('token');
     const fetchSenders = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 method: 'GET',
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -100,6 +101,7 @@ const Senders = () => {
             const response = await fetch(url, {
                 method: method,
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
@@ -127,6 +129,7 @@ const Senders = () => {
                 const response = await fetch(`http://localhost:8080/api/senders/${id}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization' : `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },

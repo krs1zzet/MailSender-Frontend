@@ -19,12 +19,13 @@ const MailTemplates = () => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false }), 5000);
     };
-
+    const token = localStorage.getItem('token');
     const fetchTemplates = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
                 method: 'GET',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -100,6 +101,7 @@ const MailTemplates = () => {
             const response = await fetch(url, {
                 method: method,
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },

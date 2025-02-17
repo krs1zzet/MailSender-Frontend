@@ -15,7 +15,7 @@ const SendMail = () => {
     const [isLoading, setIsLoading] = useState(true);
     const { eventId } = useParams();
     const navigate = useNavigate();
-
+    const token = localStorage.getItem('token');
     useEffect(() => {
         const storedEvent = localStorage.getItem('selectedEvent');
         if (storedEvent) {
@@ -47,6 +47,7 @@ const SendMail = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -75,6 +76,7 @@ const SendMail = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -103,6 +105,7 @@ const SendMail = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -152,6 +155,7 @@ const SendMail = () => {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
+                    'Authorization' : `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },

@@ -21,7 +21,7 @@ const EventOperations = () => {
             setIsLoading(false);
         }
     }, [eventId]);
-
+    const token = localStorage.getItem('token');
     const fetchEventData = async (eventId) => {
         setIsLoading(true);
         setError(null);
@@ -29,6 +29,7 @@ const EventOperations = () => {
             // Fetch mail templates for this event
             const templatesResponse = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -40,8 +41,10 @@ const EventOperations = () => {
             // Fetch senders for this event
             const sendersResponse = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
+
                 },
                 mode: 'cors'
             });
@@ -51,6 +54,7 @@ const EventOperations = () => {
             // Fetch receivers for this event
             const receiversResponse = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
