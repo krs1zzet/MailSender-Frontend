@@ -21,7 +21,8 @@ const EventOperations = () => {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                // Handle empty response
+                const data = response.status !== 204 ? await response.json() : [];
                 setEventData(data);
             } catch (error) {
                 console.error('Error fetching event data:', error);
@@ -39,11 +40,15 @@ const EventOperations = () => {
     return (
         <div>
             <h1>Event Data</h1>
-            <ul>
-                {eventData.map(item => (
-                    <li key={item.id}>{item.fname} {item.lname} - {item.email}</li>
-                ))}
-            </ul>
+            {eventData.length === 0 ? (
+                <p>No event data available.</p>
+            ) : (
+                <ul>
+                    {eventData.map(item => (
+                        <li key={item.id}>{item.fname} {item.lname} - {item.email}</li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };

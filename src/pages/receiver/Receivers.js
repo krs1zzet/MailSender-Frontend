@@ -42,7 +42,8 @@ const Receivers = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
+            const textData = await response.text();
+            const data = textData === "" ? [] : JSON.parse(textData);
             setReceivers(data);
         } catch (error) {
             console.error('Error fetching receivers:', error);
@@ -171,7 +172,7 @@ const Receivers = () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('id', eventId); // Add eventId as 'id' parameter
+        formData.append('eventID', eventId); // Add eventId as 'eventID' parameter
 
         try {
             const token = localStorage.getItem('token');
@@ -181,7 +182,6 @@ const Receivers = () => {
                 body: formData,
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
                 },
                 mode: 'cors'
             });
@@ -219,7 +219,7 @@ const Receivers = () => {
         try {
             const token = localStorage.getItem('token');
             console.log('Retrieved token:', token); // Debugging line
-            const response = await fetch('http://localhost:8080/api/receivers/excel', {
+            const response = await fetch('http://localhost:8080/api/receivers/excelTemplate', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -21,6 +21,7 @@ const EventOperations = () => {
             setIsLoading(false);
         }
     }, [eventId]);
+
     const token = localStorage.getItem('token');
     const fetchEventData = async (eventId) => {
         setIsLoading(true);
@@ -35,7 +36,8 @@ const EventOperations = () => {
                 },
                 mode: 'cors'
             });
-            const templatesData = await templatesResponse.json();
+            const templatesText = await templatesResponse.text();
+            const templatesData = templatesText === "" ? [] : JSON.parse(templatesText);
             setMailTemplates(templatesData);
 
             // Fetch senders for this event
@@ -44,11 +46,11 @@ const EventOperations = () => {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-
                 },
                 mode: 'cors'
             });
-            const sendersData = await sendersResponse.json();
+            const sendersText = await sendersResponse.text();
+            const sendersData = sendersText === "" ? [] : JSON.parse(sendersText);
             setSenders(sendersData);
 
             // Fetch receivers for this event
@@ -60,7 +62,8 @@ const EventOperations = () => {
                 },
                 mode: 'cors'
             });
-            const receiversData = await receiversResponse.json();
+            const receiversText = await receiversResponse.text();
+            const receiversData = receiversText === "" ? [] : JSON.parse(receiversText);
             setReceivers(receiversData);
 
             setIsLoading(false);

@@ -22,11 +22,12 @@ const Senders = () => {
     };
     const token = localStorage.getItem('token');
     const fetchSenders = async () => {
+        console.log('Retrieved token:', token); // Debugging line
         try {
             const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization' : `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -37,7 +38,8 @@ const Senders = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
+            const textData = await response.text();
+            const data = textData === "" ? [] : JSON.parse(textData);
             setSenders(data);
         } catch (error) {
             console.error('Error fetching senders:', error);
@@ -96,12 +98,10 @@ const Senders = () => {
                 eventId: parseInt(eventId)
             };
             
-            console.log('Sending sender data:', senderData);
-            
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Authorization' : `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },

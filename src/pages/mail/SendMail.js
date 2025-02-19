@@ -76,28 +76,27 @@ const SendMail = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
                 headers: {
-                    'Authorization' : `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 mode: 'cors'
             });
 
-            if (response.status === 404) {
-                setSenders([]);
-                return;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            if (!response.ok) throw new Error('Failed to fetch senders');
-            
-            const data = await response.json();
-            setSenders(Array.isArray(data) ? data.map(sender => ({
+            const text = await response.text();
+            const data = text === "" ? [] : JSON.parse(text);
+            const formattedSenders = data.map(sender => ({
                 value: sender.id,
                 label: sender.email
-            })) : []);
+            }));
+            setSenders(formattedSenders);
         } catch (error) {
-            showAlert('danger', 'Failed to load senders');
-            console.error('Error:', error);
+            console.error('Error fetching senders:', error);
+            throw new Error('Failed to fetch senders');
         }
     };
 
@@ -105,28 +104,27 @@ const SendMail = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 headers: {
-                    'Authorization' : `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 mode: 'cors'
             });
 
-            if (response.status === 404) {
-                setReceivers([]);
-                return;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            if (!response.ok) throw new Error('Failed to fetch receivers');
-            
-            const data = await response.json();
-            setReceivers(Array.isArray(data) ? data.map(receiver => ({
+            const text = await response.text();
+            const data = text === "" ? [] : JSON.parse(text);
+            const formattedReceivers = data.map(receiver => ({
                 value: receiver.id,
                 label: `${receiver.email} - ${receiver.groupName || 'No Group'}`
-            })) : []);
+            }));
+            setReceivers(formattedReceivers);
         } catch (error) {
-            showAlert('danger', 'Failed to load receivers');
-            console.error('Error:', error);
+            console.error('Error fetching receivers:', error);
+            throw new Error('Failed to fetch receivers');
         }
     };
 
@@ -155,25 +153,59 @@ const SendMail = () => {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Authorization' : `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 mode: 'cors'
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(JSON.stringify(errorData));
-            }
+            const result = await response.json();
 
-            showAlert('success', 'Emails sent successfully!');
-            setSelectedTemplate(null);
-            setSelectedSender(null);
-            setSelectedReceivers([]);
+            if (result.success) {
+                showAlert('success', '✅ All emails have been sent successfully!');
+                // Clear form if successful
+                setSelectedTemplate(null);
+                setSelectedSender(null);
+                setSelectedReceivers([]);
+            } else {
+                // Handle different error scenarios
+                let errorMessage = '';
+                let variant = 'warning';
+
+                if (result.failedEmails && result.failedEmails.length > 0) {
+                    errorMessage = `⚠️ Failed to send emails to: ${result.failedEmails.join(', ')}`;
+                    if (result.message) {
+                        errorMessage += `\nReason: ${result.message}`;
+                    }
+                } else if (result.message === "Authentication failed") {
+                    errorMessage = '🔒 Sender authentication failed. Please check the sender\'s email and app password.';
+                    variant = 'danger';
+                } else if (result.message.includes("Template")) {
+                    errorMessage = '�� There was an issue with the email template. Please verify the template content.';
+                    variant = 'warning';
+                } else if (result.message.includes("Invalid")) {
+                    errorMessage = '❌ Invalid request. Please check all selected values.';
+                    variant = 'danger';
+                } else {
+                    errorMessage = result.message || '❌ An unexpected error occurred while sending emails.';
+                    variant = 'danger';
+                }
+
+                showAlert(variant, errorMessage);
+            }
         } catch (error) {
             console.error('Error sending emails:', error);
-            showAlert('danger', `Failed to send emails: ${error.message}`);
+            let errorMessage = '❌ Failed to send emails: ';
+            
+            try {
+                const parsedError = JSON.parse(error.message);
+                errorMessage += parsedError.message || 'Unknown error occurred';
+            } catch {
+                errorMessage += error.message || 'Unknown error occurred';
+            }
+            
+            showAlert('danger', errorMessage);
         }
     };
 
@@ -190,8 +222,17 @@ const SendMail = () => {
                             variant={alert.variant} 
                             onClose={() => setAlert({ show: false })} 
                             dismissible
+                            className="d-flex align-items-center"
+                            style={{ 
+                                fontSize: '1.1rem',
+                                padding: '1rem',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}
                         >
-                            {alert.message}
+                            <div style={{ whiteSpace: 'pre-line' }}>
+                                {alert.message}
+                            </div>
                         </Alert>
                     )}
 

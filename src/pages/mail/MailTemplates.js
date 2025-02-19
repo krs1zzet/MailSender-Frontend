@@ -41,8 +41,10 @@ const MailTemplates = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            const data = await response.json();
-            setTemplates(Array.isArray(data) ? data : []);
+            const textData = await response.text();
+            const templateData = textData === "" ? [] : JSON.parse(textData);
+            setTemplates(templateData);
+            
         } catch (error) {
             console.error('Error fetching templates:', error);
             setError('Failed to fetch templates. Please try again later.');
