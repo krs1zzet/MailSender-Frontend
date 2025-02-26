@@ -1,0 +1,62 @@
+.auth-container {
+    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+}
+
+.auth-card {
+    min-width: 400px;
+    border-radius: 15px;
+    border: none;
+}
+
+.auth-card .card-body {
+    padding: 2.5rem !important;
+}
+
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+    padding: 0.75rem;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus {
+    border-color: #ced4da;
+    box-shadow: none;
+}
+
+.input-group-text svg {
+    color: #6c757d;
+}
+
+.btn-primary {
+    padding: 0.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 13, 255, 0.3);
+}
+
+.btn-link {
+    color: #6B73FF;
+}
+
+.btn-link:hover {
+    color: #000DFF;
+}
+
+.alert {
+    border-radius: 10px;
+}
+
+.icon {
+    font-size: 1rem;
+    color: #6c757d;
+} 

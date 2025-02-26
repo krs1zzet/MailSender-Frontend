@@ -126,11 +126,13 @@ const MailTemplates = () => {
     };
 
     const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
         if (window.confirm('Are you sure you want to delete this template?')) {
             try {
                 const response = await fetch(`http://localhost:8080/api/mailTemplates/${id}`, {
                     method: 'DELETE',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },

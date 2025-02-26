@@ -13,18 +13,51 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if the user is already authenticated
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Verify token with backend
+      const response = await fetch('http://localhost:8080/api/auth/verify', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Token invalid');
+      }
+
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Auth error:', error);
+      localStorage.removeItem('token'); // Clear invalid token
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAuthSuccess = () => {
     setIsAuthenticated(true);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
 
   if (!isAuthenticated) {
     return <AuthForm onAuthSuccess={handleAuthSuccess} />;

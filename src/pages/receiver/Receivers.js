@@ -172,11 +172,11 @@ const Receivers = () => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('eventID', eventId); // Add eventId as 'eventID' parameter
+        formData.append('eventId', eventId);
 
         try {
             const token = localStorage.getItem('token');
-            console.log('Retrieved token:', token); // Debugging line
+            console.log('Retrieved token:', token);
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
                 method: 'POST',
                 body: formData,
