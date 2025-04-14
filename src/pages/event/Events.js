@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Events.css'; // CSS dosyasını doğru şekilde import ettim
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -122,16 +123,20 @@ const Events = () => {
 
     const handleSelectEvent = (event) => {
         console.log('Selecting event:', event);
-        localStorage.setItem('selectedEvent', JSON.stringify(event));
-        console.log('Stored in localStorage:', localStorage.getItem('selectedEvent'));
-        navigate(`/events/${event.id}`);
+        try {
+            localStorage.setItem('selectedEvent', JSON.stringify(event));
+            console.log('Stored in localStorage:', localStorage.getItem('selectedEvent'));
+            navigate(`/events/${event.id}`);
+        } catch (error) {
+            console.error('Error storing event:', error);
+        }
     };
 
     return (
-        <div className="container mt-4">
+        <Container className="py-8">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>Events</h2>
-                <Button variant="primary" onClick={handleShow}>
+                <h2 className="mb-0">Events</h2>
+                <Button variant="secondary" onClick={handleShow}>
                     Create New Event
                 </Button>
             </div>
@@ -146,52 +151,58 @@ const Events = () => {
                 </Alert>
             )}
 
-            <Row>
-                {events.map((event) => (
-                    <Col md={6} lg={4} xl={3} key={event.id} className="mb-4">
-                        <Card 
-                            className="h-100 hover-shadow"
-                            style={{ transition: 'transform 0.2s' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <Card.Body>
-                                <Card.Title>{event.name}</Card.Title>
-                                <Card.Text className="text-muted mb-2">
-                                    {event.description}
-                                </Card.Text>
-                                <Card.Text>
-                                    <small className="text-muted">
-                                        Date: {event.date}
-                                    </small>
-                                </Card.Text>
-                            </Card.Body>
-                            <Card.Footer className="bg-transparent border-0 d-flex justify-content-between">
-                                <Button 
-                                    variant="success" 
-                                    onClick={() => handleSelectEvent(event)}
-                                >
-                                    Select
-                                </Button>
-                                <div>
-                                    <Button 
-                                        variant="outline-primary" 
-                                        className="me-2"
-                                        onClick={() => handleEdit(event)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button 
-                                        variant="outline-danger"
-                                        onClick={() => handleDelete(event.id)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </div>
-                            </Card.Footer>
-                        </Card>
+            <Row className="g-4"> {/* Burada padding sorununu düzelttim, g-12 yerine g-4 kullandım */}
+                {events.length === 0 ? (
+                    <Col xs={8}>
+                        <div className="text-center p-5 bg-light rounded">
+                            <p className="mb-0">No events found. Click "Create New Event" to get started.</p>
+                        </div>
                     </Col>
-                ))}
+                ) : (
+                    events.map((event) => (
+                        <Col md={6} lg={4} key={event.id}>
+                            <Card className="event-card h-100 shadow-sm">
+                                <Card.Body className="d-flex flex-column">
+                                    <Card.Title className="event-title">{event.name}</Card.Title>
+                                    <Card.Text className="event-description text-muted mb-2">
+                                        {event.description}
+                                    </Card.Text>
+                                    <Card.Text className="event-date small text-muted mb-3">
+                                        <strong>Date:</strong> {event.date}
+                                    </Card.Text>
+                                    <div className="mt-auto">
+                                        <div className="d-grid mb-2">
+                                            <Button 
+                                                variant="success" 
+                                                onClick={() => handleSelectEvent(event)}
+                                            >
+                                                Select
+                                            </Button>
+                                        </div>
+                                        <div className="d-flex justify-content-between">
+                                            <Button 
+                                                variant="outline-primary" 
+                                                className="flex-grow-1 me-2"
+                                                onClick={() => handleEdit(event)}
+                                                size="sm"
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button 
+                                                variant="outline-danger"
+                                                className="flex-grow-1"
+                                                onClick={() => handleDelete(event.id)}
+                                                size="sm"
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))
+                )}
             </Row>
 
             <Modal show={showModal} onHide={handleClose}>
@@ -232,7 +243,7 @@ const Events = () => {
                         <Form.Group className="mb-3">
                             <Form.Label>Date</Form.Label>
                             <Form.Control
-                                type="text"
+                                type="date" 
                                 placeholder="Enter event date"
                                 value={currentEvent.date}
                                 onChange={(e) => setCurrentEvent({
@@ -266,8 +277,8 @@ const Events = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
-        </div>
+        </Container>
     );
 };
 
-export default Events; 
+export default Events;

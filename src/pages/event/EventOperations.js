@@ -139,7 +139,7 @@ const EventOperations = () => {
     ];
 
     return (
-        <Container className="mt-4">
+        <Container fluid className="mt-4">
             <Card className="mb-4 bg-light">
                 <Card.Body>
                     <h2 className="mb-2">{event.name}</h2>
@@ -150,7 +150,7 @@ const EventOperations = () => {
 
             <Row>
                 {operations.map((operation, index) => (
-                    <Col md={6} lg={3} key={index} className="mb-4">
+                   <Col xs={12} sm={6} md={4} lg={3} key={index} className="mb-4">
                         <Card 
                             as={Link} 
                             to={operation.link}

@@ -1,15 +1,28 @@
 .auth-container {
-    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+    background: transparent;
+    height: auto; /* Sabit yükseklik yerine içerik kadar büyüsün */
+    width: 90%; /* Küçük ekranlarda daha geniş olsun */
+    max-width: 600px; /* Çok büyük olmasını engelle */
+    margin: 0 auto !important;
+    display: flex;
+    flex-direction: column; /* Küçük ekranlarda dikey hizalama */
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem; /* Küçük ekranlar için iç boşluk */
 }
 
 .auth-card {
-    min-width: 400px;
+    width: 100%; /* Kartın genişliği her ekrana uyum sağlasın */
     border-radius: 15px;
     border: none;
+    height: auto;
+    max-width: 450px; /* Kartın maksimum genişliği */
+    padding: 1rem;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Hafif gölge efekti */
 }
 
 .auth-card .card-body {
-    padding: 2.5rem !important;
+    padding: 1.5rem !important;
 }
 
 .input-group-text {
@@ -28,15 +41,12 @@
 }
 
 .input-group-text svg {
-    color: #6c757d;
+    color: #141516;
 }
 
-.btn-primary {
-    padding: 0.8rem;
-    font-weight: 600;
-    background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
-    border: none;
-    transition: all 0.3s ease;
+.auth-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 13, 255, 0.3);
 }
 
 .btn-primary:hover {
@@ -59,4 +69,28 @@
 .icon {
     font-size: 1rem;
     color: #6c757d;
-} 
+}
+
+/* Küçük ekranlar (tabletler ve telefonlar) için */
+@media (max-width: 768px) {
+    .auth-container {
+        width: 100%;
+        padding: 1.5rem;
+    }
+
+    .auth-card {
+        max-width: 100%;
+        padding: 1rem;
+    }
+}
+
+/* Daha küçük ekranlar (mobil) için */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 0.75rem;
+    }
+
+    .input-group-text {
+        padding: 0.5rem;
+    }
+}

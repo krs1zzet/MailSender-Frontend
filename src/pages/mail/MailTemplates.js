@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
-import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './MailTemplates.css';
 
 const MailTemplates = () => {
     const [templates, setTemplates] = useState([]);
@@ -19,7 +20,9 @@ const MailTemplates = () => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false }), 5000);
     };
+    
     const token = localStorage.getItem('token');
+    
     const fetchTemplates = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
@@ -126,7 +129,6 @@ const MailTemplates = () => {
     };
 
     const handleDelete = async (id) => {
-        const token = localStorage.getItem('token');
         if (window.confirm('Are you sure you want to delete this template?')) {
             try {
                 const response = await fetch(`http://localhost:8080/api/mailTemplates/${id}`, {
@@ -155,7 +157,7 @@ const MailTemplates = () => {
     }
 
     return (
-        <Container className="mt-4">
+        <Container className="mt-4 px-3">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Mail Templates - {event?.name}</h2>
                 <Button variant="primary" onClick={handleShow}>
@@ -184,12 +186,15 @@ const MailTemplates = () => {
                     No templates found. Click "Create New Template" to add one.
                 </Alert>
             ) : (
-                <Row>
+                <Row className="row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     {templates.map((template) => (
-                        <Col md={6} lg={4} xl={3} key={template.id} className="mb-4">
+                        <Col key={template.id}>
                             <Card 
                                 className="h-100 hover-shadow"
-                                style={{ transition: 'transform 0.2s' }}
+                                style={{ 
+                                    transition: 'transform 0.2s',
+                                    width: '100%'
+                                }}
                                 onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             >
@@ -270,4 +275,4 @@ const MailTemplates = () => {
     );
 };
 
-export default MailTemplates; 
+export default MailTemplates;

@@ -3,14 +3,15 @@ import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
 const Receivers = () => {
     const [receivers, setReceivers] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
-    const [currentReceiver, setCurrentReceiver] = useState({ 
-        fname: '', 
-        lname: '', 
-        email: '', 
+    const [currentReceiver, setCurrentReceiver] = useState({
+        fname: '',
+        lname: '',
+        email: '',
         groupName: '',
         id: null
     });
@@ -24,9 +25,9 @@ const Receivers = () => {
         setTimeout(() => setAlert({ show: false }), 5000);
     };
 
+    // Fetch receivers based on eventId
     const fetchReceivers = async () => {
         const token = localStorage.getItem('token');
-        console.log('Retrieved token:', token); // Debugging line
         try {
             const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
                 method: 'GET',
@@ -37,13 +38,12 @@ const Receivers = () => {
                 },
                 mode: 'cors'
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            const textData = await response.text();
-            const data = textData === "" ? [] : JSON.parse(textData);
+
+            const data = await response.json();
             setReceivers(data);
         } catch (error) {
             console.error('Error fetching receivers:', error);
@@ -69,24 +69,18 @@ const Receivers = () => {
     const handleClose = () => {
         setShowModal(false);
         setEditMode(false);
-        setCurrentReceiver({ 
-            fname: '', 
-            lname: '', 
-            email: '', 
-            groupName: '',
-            id: null
-        });
+        setCurrentReceiver({ fname: '', lname: '', email: '', groupName: '', id: null });
     };
 
     const handleShow = () => setShowModal(true);
 
     const handleEdit = (receiver) => {
         setCurrentReceiver({
-            id: receiver.id || null,
-            fname: receiver.fname || '',
-            lname: receiver.lname || '',
-            email: receiver.email || '',
-            groupName: receiver.groupName || ''
+            id: receiver.id,
+            fname: receiver.fname,
+            lname: receiver.lname,
+            email: receiver.email,
+            groupName: receiver.groupName
         });
         setEditMode(true);
         setShowModal(true);
@@ -95,25 +89,21 @@ const Receivers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = editMode 
+            const url = editMode
                 ? `http://localhost:8080/api/receivers/${currentReceiver.id}`
                 : 'http://localhost:8080/api/receivers';
-            
             const method = editMode ? 'PUT' : 'POST';
-            
-            // Include eventId in the receiver data
+
             const receiverData = {
                 fname: currentReceiver.fname,
                 lname: currentReceiver.lname,
                 email: currentReceiver.email,
+                groupName: currentReceiver.groupName,
                 eventId: parseInt(eventId)
             };
-            
-            console.log('Sending receiver data:', receiverData);
-            
+
             const token = localStorage.getItem('token');
-            console.log('Retrieved token:', token); // Debugging line
-            
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -131,7 +121,7 @@ const Receivers = () => {
             }
 
             showAlert('success', `Receiver ${editMode ? 'updated' : 'created'} successfully!`);
-            await fetchReceivers();
+            fetchReceivers();
             handleClose();
         } catch (error) {
             console.error('Error saving receiver:', error);
@@ -143,7 +133,6 @@ const Receivers = () => {
         if (window.confirm('Are you sure you want to delete this receiver?')) {
             try {
                 const token = localStorage.getItem('token');
-                console.log('Retrieved token:', token); // Debugging line
                 const response = await fetch(`http://localhost:8080/api/receivers/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -161,7 +150,7 @@ const Receivers = () => {
                 fetchReceivers();
             } catch (error) {
                 console.error('Error deleting receiver:', error);
-                alert('Failed to delete receiver. Please try again.');
+                showAlert('danger', 'Failed to delete receiver. Please try again.');
             }
         }
     };
@@ -176,12 +165,11 @@ const Receivers = () => {
 
         try {
             const token = localStorage.getItem('token');
-            console.log('Retrieved token:', token);
             const response = await fetch('http://localhost:8080/api/receivers/excel', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`
                 },
                 mode: 'cors'
             });
@@ -192,7 +180,7 @@ const Receivers = () => {
             }
 
             showAlert('success', 'Receivers imported successfully!');
-            await fetchReceivers(); // Refresh the receivers list
+            fetchReceivers();
             e.target.value = ''; // Reset file input
         } catch (error) {
             console.error('Error uploading Excel:', error);
@@ -200,12 +188,10 @@ const Receivers = () => {
         }
     };
 
-    // Add file input validation
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Check if file is an Excel or CSV file
         if (!file.name.match(/\.(xlsx|xls|csv)$/)) {
             showAlert('danger', 'Please select an Excel (.xlsx, .xls) or CSV (.csv) file');
             e.target.value = '';
@@ -218,7 +204,6 @@ const Receivers = () => {
     const handleDownloadTemplate = async () => {
         try {
             const token = localStorage.getItem('token');
-            console.log('Retrieved token:', token); // Debugging line
             const response = await fetch('http://localhost:8080/api/receivers/excelTemplate', {
                 method: 'GET',
                 headers: {
@@ -231,23 +216,16 @@ const Receivers = () => {
                 throw new Error('Failed to download template');
             }
 
-            // Create blob from response
             const blob = await response.blob();
-            
-            // Create download link
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.download = 'receivers_template.xlsx';
-            
-            // Trigger download
             document.body.appendChild(link);
             link.click();
-            
-            // Cleanup
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            
+
             showAlert('success', 'Template downloaded successfully!');
         } catch (error) {
             console.error('Error downloading template:', error);
@@ -262,13 +240,9 @@ const Receivers = () => {
     return (
         <div className="container mt-4">
             <h2>Receivers</h2>
-            
+
             {alert.show && (
-                <Alert 
-                    variant={alert.variant} 
-                    onClose={() => setAlert({ show: false })} 
-                    dismissible
-                >
+                <Alert variant={alert.variant} onClose={() => setAlert({ show: false })} dismissible>
                     {alert.message}
                 </Alert>
             )}
@@ -277,13 +251,10 @@ const Receivers = () => {
                 <Button variant="primary" onClick={handleShow}>
                     Add New Receiver
                 </Button>
-                
+
                 <div className="d-flex align-items-center gap-3">
                     <Form.Group>
-                        <Form.Label 
-                            htmlFor="file-upload" 
-                            className="mb-0 me-2"
-                        >
+                        <Form.Label htmlFor="file-upload" className="mb-0 me-2">
                             Import from file:
                         </Form.Label>
                         <Form.Control
@@ -294,16 +265,10 @@ const Receivers = () => {
                             style={{ display: 'none' }}
                         />
                         <div className="d-flex gap-2">
-                            <Button 
-                                variant="success" 
-                                onClick={() => document.getElementById('file-upload').click()}
-                            >
+                            <Button variant="success" onClick={() => document.getElementById('file-upload').click()}>
                                 Upload File
                             </Button>
-                            <Button 
-                                variant="outline-secondary" 
-                                onClick={handleDownloadTemplate}
-                            >
+                            <Button variant="outline-secondary" onClick={handleDownloadTemplate}>
                                 Download Template
                             </Button>
                         </div>
@@ -317,32 +282,23 @@ const Receivers = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
+                        <th>Name</th>
                         <th>Email</th>
-                        <th>Group Name</th>
+                        <th>Group</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {receivers.map((receiver) => (
                         <tr key={receiver.id}>
-                            <td>{receiver.fname}</td>
-                            <td>{receiver.lname}</td>
+                            <td>{`${receiver.fname} ${receiver.lname}`}</td>
                             <td>{receiver.email}</td>
                             <td>{receiver.groupName}</td>
                             <td>
-                                <Button 
-                                    variant="info" 
-                                    className="me-2"
-                                    onClick={() => handleEdit(receiver)}
-                                >
+                                <Button variant="warning" onClick={() => handleEdit(receiver)}>
                                     Edit
-                                </Button>
-                                <Button 
-                                    variant="danger"
-                                    onClick={() => handleDelete(receiver.id)}
-                                >
+                                </Button>{' '}
+                                <Button variant="danger" onClick={() => handleDelete(receiver.id)}>
                                     Delete
                                 </Button>
                             </td>
@@ -353,71 +309,53 @@ const Receivers = () => {
 
             <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>
-                        {editMode ? 'Edit Receiver' : 'Add New Receiver'}
-                    </Modal.Title>
+                    <Modal.Title>{editMode ? 'Edit Receiver' : 'Add New Receiver'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formFname">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter first name"
-                                value={currentReceiver.fname || ''}
-                                onChange={(e) => setCurrentReceiver({
-                                    ...currentReceiver,
-                                    fname: e.target.value
-                                })}
+                                value={currentReceiver.fname}
+                                onChange={(e) => setCurrentReceiver({ ...currentReceiver, fname: e.target.value })}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formLname">
                             <Form.Label>Last Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter last name"
-                                value={currentReceiver.lname || ''}
-                                onChange={(e) => setCurrentReceiver({
-                                    ...currentReceiver,
-                                    lname: e.target.value
-                                })}
+                                value={currentReceiver.lname}
+                                onChange={(e) => setCurrentReceiver({ ...currentReceiver, lname: e.target.value })}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formEmail">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
                                 placeholder="Enter email"
-                                value={currentReceiver.email || ''}
-                                onChange={(e) => setCurrentReceiver({
-                                    ...currentReceiver,
-                                    email: e.target.value
-                                })}
+                                value={currentReceiver.email}
+                                onChange={(e) => setCurrentReceiver({ ...currentReceiver, email: e.target.value })}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group controlId="formGroupName">
                             <Form.Label>Group Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter group name"
-                                value={currentReceiver.groupName || ''}
-                                onChange={(e) => setCurrentReceiver({
-                                    ...currentReceiver,
-                                    groupName: e.target.value
-                                })}
+                                value={currentReceiver.groupName}
+                                onChange={(e) => setCurrentReceiver({ ...currentReceiver, groupName: e.target.value })}
+                                required
                             />
                         </Form.Group>
-                        <div className="d-flex justify-content-end gap-2">
-                            <Button variant="secondary" onClick={handleClose}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" type="submit">
-                                {editMode ? 'Save Changes' : 'Add Receiver'}
-                            </Button>
-                        </div>
+                        <Button variant="primary" type="submit">
+                            {editMode ? 'Update Receiver' : 'Add Receiver'}
+                        </Button>
                     </Form>
                 </Modal.Body>
             </Modal>
@@ -425,4 +363,4 @@ const Receivers = () => {
     );
 };
 
-export default Receivers; 
+export default Receivers;
