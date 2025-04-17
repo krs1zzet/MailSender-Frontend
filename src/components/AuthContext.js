@@ -60,9 +60,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('userInfo', JSON.stringify(userInfo));
       setUser(userInfo);
     } else {
-      // Eğer userInfo sağlanmadıysa, API'den kullanıcı bilgilerini al
+      // Fetch user information from the correct API endpoint
       try {
-        const response = await fetch('http://localhost:8080/api/auth/user-profile', {
+        const response = await fetch('http://localhost:8080/api/auth/user-info', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -72,6 +72,8 @@ export const AuthProvider = ({ children }) => {
           const userData = await response.json();
           localStorage.setItem('userInfo', JSON.stringify(userData));
           setUser(userData);
+        } else {
+          console.error('Failed to fetch user data:', response.status);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -86,9 +88,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     const token = localStorage.getItem('token');
     
-    // Clear local storage first
-    localStorage.removeItem('token');
-    localStorage.removeItem('userInfo');
+    // Clear all user-related data from localStorage
+    localStorage.clear();
+    
+    // Reset all state variables
     setIsAuthenticated(false);
     setUser(null);
     setAuthError(null);
