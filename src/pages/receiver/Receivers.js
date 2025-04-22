@@ -28,17 +28,8 @@ const Receivers = () => {
 
     // Fetch receivers based on eventId
     const fetchReceivers = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`receivers/${eventId}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

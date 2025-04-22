@@ -101,3 +101,28 @@ Or when running the container directly:
 ```bash
 docker run -p 8083:8083 -e REACT_APP_API_URL=http://your-api-url:port mailsender
 ```
+
+## Deploying to Netlify
+
+This project is configured for easy deployment to Netlify. To deploy:
+
+1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
+2. Log in to Netlify and click "New site from Git"
+3. Select your repository and branch
+4. Use these build settings:
+   - Build command: `npm run build`
+   - Publish directory: `build`
+5. Click "Deploy site"
+
+All necessary configurations are already included:
+- `netlify.toml` with build settings and redirects
+- `_redirects` file for proper SPA routing
+- Environment variable configuration
+
+### Environment Variables
+
+The API URL is set to `https://54.172.234.3:8080` by default. You can customize this in the Netlify dashboard:
+
+1. Go to Site settings > Build & deploy > Environment
+2. Add a variable named `REACT_APP_API_URL` with your backend URL
+3. Trigger a new deploy for changes to take effect

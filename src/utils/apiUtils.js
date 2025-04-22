@@ -38,7 +38,12 @@ const apiUtils = {
     const url = API_CONFIG.getUrl(endpoint);
     
     // Make the request
-    return fetch(url, fetchOptions);
+    try {
+      return await fetch(url, fetchOptions);
+    } catch (error) {
+      console.error(`API request failed: ${error.message}`);
+      throw error;
+    }
   }
 };
 
