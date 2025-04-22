@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import apiUtils from './utils/apiUtils';
 
 const EventOperations = () => {
     const [eventData, setEventData] = useState([]);
@@ -6,16 +7,8 @@ const EventOperations = () => {
 
     useEffect(() => {
         const fetchEventData = async () => {
-            const token = localStorage.getItem('token');
-            console.log('Retrieved token:', token); // Debugging line
             try {
-                const response = await fetch('http://localhost:8080/api/receivers/1', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
+                const response = await apiUtils.fetchApi('receivers/1');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

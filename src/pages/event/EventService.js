@@ -1,7 +1,6 @@
 // EventService.js - örnek servis sınıfı
 import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/api';
+import API_CONFIG from '../../config/api';
 
 const EventService = {
   // Kullanıcının kendi etkinliklerini getir
@@ -9,7 +8,7 @@ const EventService = {
     const token = localStorage.getItem('token');
     
     try {
-      const response = await axios.get(`${API_URL}/events/user-events`, {
+      const response = await axios.get(API_CONFIG.getUrl('events/user-events'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -27,7 +26,7 @@ const EventService = {
     const token = localStorage.getItem('token');
     
     try {
-      const response = await axios.post(`${API_URL}/events`, eventData, {
+      const response = await axios.post(API_CONFIG.getUrl('events'), eventData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

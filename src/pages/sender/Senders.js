@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import apiUtils from '../../utils/apiUtils';
 
 const Senders = () => {
     const [senders, setSenders] = useState([]);
@@ -20,19 +21,10 @@ const Senders = () => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false }), 5000);
     };
-    const token = localStorage.getItem('token');
+    
     const fetchSenders = async () => {
-        console.log('Retrieved token:', token); // Debugging line
         try {
-            const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`senders/${eventId}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -86,9 +78,9 @@ const Senders = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = editMode 
-                ? `http://localhost:8080/api/senders/${currentSender.id}`
-                : 'http://localhost:8080/api/senders';
+            const endpoint = editMode 
+                ? `senders/${currentSender.id}`
+                : 'senders';
             
             const method = editMode ? 'PUT' : 'POST';
             
@@ -98,15 +90,9 @@ const Senders = () => {
                 eventId: parseInt(eventId)
             };
             
-            const response = await fetch(url, {
+            const response = await apiUtils.fetchApi(endpoint, {
                 method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(senderData),
-                mode: 'cors'
+                body: JSON.stringify(senderData)
             });
 
             if (!response.ok) {
@@ -126,14 +112,8 @@ const Senders = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this sender?')) {
             try {
-                const response = await fetch(`http://localhost:8080/api/senders/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization' : `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'cors'
+                const response = await apiUtils.fetchApi(`senders/${id}`, {
+                    method: 'DELETE'
                 });
 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

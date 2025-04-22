@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-boo
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './MailTemplates.css';
+import apiUtils from '../../utils/apiUtils';
 
 const MailTemplates = () => {
     const [templates, setTemplates] = useState([]);
@@ -21,19 +22,9 @@ const MailTemplates = () => {
         setTimeout(() => setAlert({ show: false }), 5000);
     };
     
-    const token = localStorage.getItem('token');
-    
     const fetchTemplates = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`mailTemplates/${eventId}`);
             
             if (response.status === 404) {
                 setTemplates([]);
@@ -89,9 +80,9 @@ const MailTemplates = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = editMode 
-                ? `http://localhost:8080/api/mailTemplates/${currentTemplate.id}`
-                : 'http://localhost:8080/api/mailTemplates';
+            const endpoint = editMode 
+                ? `mailTemplates/${currentTemplate.id}`
+                : 'mailTemplates';
             
             const method = editMode ? 'PUT' : 'POST';
             
@@ -103,15 +94,9 @@ const MailTemplates = () => {
             
             console.log('Sending template data:', templateData);
             
-            const response = await fetch(url, {
+            const response = await apiUtils.fetchApi(endpoint, {
                 method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(templateData),
-                mode: 'cors'
+                body: JSON.stringify(templateData)
             });
 
             if (!response.ok) {
@@ -131,14 +116,8 @@ const MailTemplates = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this template?')) {
             try {
-                const response = await fetch(`http://localhost:8080/api/mailTemplates/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'cors'
+                const response = await apiUtils.fetchApi(`mailTemplates/${id}`, {
+                    method: 'DELETE'
                 });
 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

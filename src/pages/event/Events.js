@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-boo
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Events.css'; // CSS dosyasını doğru şekilde import ettim
+import apiUtils from '../../utils/apiUtils';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -20,15 +21,7 @@ const Events = () => {
 
     const fetchEvents = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/events', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi('events');
             
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
@@ -66,21 +59,15 @@ const Events = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = editMode 
-                ? `http://localhost:8080/api/events/${currentEvent.id}`
-                : 'http://localhost:8080/api/events';
+            const endpoint = editMode 
+                ? `events/${currentEvent.id}`
+                : 'events';
             
             const method = editMode ? 'PUT' : 'POST';
             
-            const response = await fetch(url, {
+            const response = await apiUtils.fetchApi(endpoint, {
                 method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(currentEvent),
-                mode: 'cors'
+                body: JSON.stringify(currentEvent)
             });
 
             if (!response.ok) {
@@ -100,14 +87,8 @@ const Events = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this event?')) {
             try {
-                const response = await fetch(`http://localhost:8080/api/events/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'cors'
+                const response = await apiUtils.fetchApi(`events/${id}`, {
+                    method: 'DELETE'
                 });
 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

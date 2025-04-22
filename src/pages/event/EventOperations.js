@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Alert } from 'react-bootstrap';
 import { Link, useParams, Navigate } from 'react-router-dom';
+import apiUtils from '../../utils/apiUtils';
 
 const EventOperations = () => {
     const [event, setEvent] = useState(null);
@@ -28,40 +29,19 @@ const EventOperations = () => {
         setError(null);
         try {
             // Fetch mail templates for this event
-            const templatesResponse = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const templatesResponse = await apiUtils.fetchApi(`mailTemplates/${eventId}`);
             const templatesText = await templatesResponse.text();
             const templatesData = templatesText === "" ? [] : JSON.parse(templatesText);
             setMailTemplates(templatesData);
 
             // Fetch senders for this event
-            const sendersResponse = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const sendersResponse = await apiUtils.fetchApi(`senders/${eventId}`);
             const sendersText = await sendersResponse.text();
             const sendersData = sendersText === "" ? [] : JSON.parse(sendersText);
             setSenders(sendersData);
 
             // Fetch receivers for this event
-            const receiversResponse = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const receiversResponse = await apiUtils.fetchApi(`receivers/${eventId}`);
             const receiversText = await receiversResponse.text();
             const receiversData = receiversText === "" ? [] : JSON.parse(receiversText);
             setReceivers(receiversData);

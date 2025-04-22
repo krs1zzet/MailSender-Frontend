@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import apiUtils from '../utils/apiUtils';
 
 // AuthContext'i oluştur
 export const AuthContext = createContext();
@@ -18,11 +19,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           // Token'ı kontrol et ve kullanıcı bilgisini al
-          const response = await fetch('http://localhost:8080/api/auth/user-profile', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
+          const response = await apiUtils.fetchApi('auth/user-profile');
           
           if (response.ok) {
             const userData = await response.json();
@@ -62,11 +59,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       // Fetch user information from the correct API endpoint
       try {
-        const response = await fetch('http://localhost:8080/api/auth/user-info', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiUtils.fetchApi('auth/user-profile');
         
         if (response.ok) {
           const userData = await response.json();
@@ -99,12 +92,8 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         // Backend'e logout isteği gönder
-        const response = await fetch('http://localhost:8080/api/auth/sign-out', {
+        const response = await apiUtils.fetchApi('auth/sign-out', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({ token })
         });
         

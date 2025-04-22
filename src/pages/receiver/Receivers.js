@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import apiUtils from '../../utils/apiUtils';
 
 
 const Receivers = () => {
@@ -89,9 +90,9 @@ const Receivers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = editMode
-                ? `http://localhost:8080/api/receivers/${currentReceiver.id}`
-                : 'http://localhost:8080/api/receivers';
+            const endpoint = editMode
+                ? `receivers/${currentReceiver.id}`
+                : 'receivers';
             const method = editMode ? 'PUT' : 'POST';
 
             const receiverData = {
@@ -102,17 +103,9 @@ const Receivers = () => {
                 eventId: parseInt(eventId)
             };
 
-            const token = localStorage.getItem('token');
-
-            const response = await fetch(url, {
+            const response = await apiUtils.fetchApi(endpoint, {
                 method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(receiverData),
-                mode: 'cors'
+                body: JSON.stringify(receiverData)
             });
 
             if (!response.ok) {
@@ -132,15 +125,8 @@ const Receivers = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this receiver?')) {
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:8080/api/receivers/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    mode: 'cors'
+                const response = await apiUtils.fetchApi(`receivers/${id}`, {
+                    method: 'DELETE'
                 });
 
                 if (!response.ok) {
@@ -164,14 +150,13 @@ const Receivers = () => {
         formData.append('eventId', eventId);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/receivers/excel', {
+            const response = await apiUtils.fetchApi('receivers/excel', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                mode: 'cors'
+                    // Override default Content-Type since we're sending FormData
+                    'Content-Type': undefined
+                }
             });
 
             if (!response.ok) {
@@ -203,11 +188,8 @@ const Receivers = () => {
 
     const handleDownloadTemplate = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:8080/api/receivers/excelTemplate', {
-                method: 'GET',
+            const response = await apiUtils.fetchApi('receivers/excelTemplate', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.ms-excel'
                 }
             });

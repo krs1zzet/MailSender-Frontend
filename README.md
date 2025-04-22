@@ -68,3 +68,36 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## API Configuration
+
+The application is configured to connect to the backend API running at `http://54.172.234.3:8080` by default. You can customize this connection through environment variables:
+
+### Development
+
+Create a `.env` file in the root of the project:
+
+```
+REACT_APP_API_URL=http://your-api-url:port
+```
+
+### Production (Docker)
+
+When running with Docker, you can override the API URL in the `docker-compose.yml` file:
+
+```yaml
+mailSender:
+  build: .
+  image: mailsender
+  container_name: mailsender
+  ports:
+    - "8083:8083"
+  environment:
+    REACT_APP_API_URL: http://your-api-url:port
+```
+
+Or when running the container directly:
+
+```bash
+docker run -p 8083:8083 -e REACT_APP_API_URL=http://your-api-url:port mailsender
+```

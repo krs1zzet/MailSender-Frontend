@@ -3,6 +3,7 @@ import { Form, Button, Container, Alert } from 'react-bootstrap';
 import Select from 'react-select';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams, useNavigate } from 'react-router-dom';
+import apiUtils from '../../utils/apiUtils';
 
 const SendMail = () => {
     const [mailTemplates, setMailTemplates] = useState([]);
@@ -45,14 +46,7 @@ const SendMail = () => {
 
     const fetchMailTemplates = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mailTemplates/${eventId}`, {
-                headers: {
-                    'Authorization' : `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`mailTemplates/${eventId}`);
             
             if (response.status === 404) {
                 setMailTemplates([]);
@@ -74,14 +68,7 @@ const SendMail = () => {
 
     const fetchSenders = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/senders/${eventId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`senders/${eventId}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -102,14 +89,7 @@ const SendMail = () => {
 
     const fetchReceivers = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/receivers/${eventId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
-            });
+            const response = await apiUtils.fetchApi(`receivers/${eventId}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -146,18 +126,12 @@ const SendMail = () => {
                 .map(receiver => receiver.value)
                 .join(',');
 
-            const url = `http://localhost:8080/api/send-mail?senderID=${selectedSender.value}&receiverIDs=${receiverIdsString}&mailTemplateID=${selectedTemplate.value}`;
+            const endpoint = `send-mail?senderID=${selectedSender.value}&receiverIDs=${receiverIdsString}&mailTemplateID=${selectedTemplate.value}`;
 
-            console.log('Sending request to:', url);
+            console.log('Sending request to:', endpoint);
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                mode: 'cors'
+            const response = await apiUtils.fetchApi(endpoint, {
+                method: 'POST'
             });
 
             const result = await response.json();
