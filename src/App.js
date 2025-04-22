@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
-import AuthForm from './AuthForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import { AuthContext, AuthProvider } from './components/AuthContext';
 

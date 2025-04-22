@@ -3,9 +3,14 @@
   publish = "build"
 
 [context.production.environment]
-  REACT_APP_API_URL = "https://54.172.234.3:8080"
+  REACT_APP_API_URL = "http://54.172.234.3:8080"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200
+
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*" 

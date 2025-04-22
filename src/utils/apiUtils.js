@@ -30,16 +30,29 @@ const apiUtils = {
     // Build fetch options
     const fetchOptions = {
       mode: 'cors',
+      credentials: 'same-origin',
       ...options,
       headers
     };
+    
+    // Skip Content-Type for file uploads
+    if (options.body instanceof FormData) {
+      delete headers['Content-Type'];
+    }
     
     // Get the full URL
     const url = API_CONFIG.getUrl(endpoint);
     
     // Make the request
     try {
-      return await fetch(url, fetchOptions);
+      console.log(`Fetching ${url}`, fetchOptions);
+      const response = await fetch(url, fetchOptions);
+      
+      if (response.status === 0) {
+        throw new Error('Network error - CORS issue or server unavailable');
+      }
+      
+      return response;
     } catch (error) {
       console.error(`API request failed: ${error.message}`);
       throw error;
