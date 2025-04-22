@@ -13,6 +13,7 @@ const apiUtils = {
    */
   fetchApi: async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
+    console.log(`API call to endpoint: ${endpoint}`);
     
     // Default headers
     const defaultHeaders = {
@@ -27,25 +28,24 @@ const apiUtils = {
       ...(options.headers || {})
     };
     
-    // Build fetch options
-    const fetchOptions = {
-      mode: 'cors',
-      credentials: 'same-origin',
-      ...options,
-      headers
-    };
-    
     // Skip Content-Type for file uploads
     if (options.body instanceof FormData) {
       delete headers['Content-Type'];
     }
+    
+    // Build fetch options
+    const fetchOptions = {
+      mode: 'cors',
+      ...options,
+      headers
+    };
     
     // Get the full URL
     const url = API_CONFIG.getUrl(endpoint);
     
     // Make the request
     try {
-      console.log(`Fetching ${url}`, fetchOptions);
+      console.log(`Fetching ${url}`);
       const response = await fetch(url, fetchOptions);
       
       if (response.status === 0) {

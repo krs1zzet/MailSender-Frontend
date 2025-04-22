@@ -3,6 +3,7 @@ import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './components/AuthContext';
+import apiUtils from './utils/apiUtils';
 import './AuthForm.css';
 
 const AuthForm = ({ onSuccess }) => {
@@ -20,17 +21,14 @@ const AuthForm = ({ onSuccess }) => {
         setIsLoading(true);
         setError('');
 
-        const url = isRegistering ? 'http://localhost:8080/api/auth/sign-up' : 'http://localhost:8080/api/auth/sign-in';
+        const endpoint = isRegistering ? 'auth/sign-up' : 'auth/sign-in';
         const payload = isRegistering
             ? { email, password, fullName, purpose: 'CREATE' }
             : { email, password };
 
         try {
-            const response = await fetch(url, {
+            const response = await apiUtils.fetchApi(endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(payload),
             });
 
@@ -65,6 +63,7 @@ const AuthForm = ({ onSuccess }) => {
                 setPassword('');
             }
         } catch (error) {
+            console.error('Authentication error:', error);
             setError(error.message);
         } finally {
             setIsLoading(false);

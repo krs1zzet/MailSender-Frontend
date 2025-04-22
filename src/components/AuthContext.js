@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           // Token'ı kontrol et ve kullanıcı bilgisini al
+          console.log('Checking authentication with stored token');
           const response = await apiUtils.fetchApi('auth/user-profile');
           
           if (response.ok) {
@@ -30,12 +31,12 @@ export const AuthProvider = ({ children }) => {
           } else {
             // Token geçersizse veya süresi dolmuşsa çıkış yap
             console.error("Invalid token or expired");
-            logout();
+            cleanupSession();
             setAuthError("Oturum süreniz dolmuş, lütfen tekrar giriş yapın");
           }
         } catch (error) {
           console.error("Auth check error:", error);
-          logout();
+          cleanupSession();
           setAuthError("Bağlantı hatası, lütfen tekrar giriş yapın");
         }
       } else {
@@ -44,6 +45,13 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
+    };
+    
+    // Helper function to clean up session without additional API calls
+    const cleanupSession = () => {
+      localStorage.clear();
+      setIsAuthenticated(false);
+      setUser(null);
     };
     
     checkAuth();
@@ -92,16 +100,13 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         // Backend'e logout isteği gönder
-        const response = await apiUtils.fetchApi('auth/sign-out', {
+        await apiUtils.fetchApi('auth/sign-out', {
           method: 'POST',
           body: JSON.stringify({ token })
         });
-        
-        if (!response.ok) {
-          console.error('Logout API error:', response.status);
-        }
       } catch (error) {
         console.error('Logout request failed:', error);
+        // Continue even if the logout request fails
       }
     }
   };

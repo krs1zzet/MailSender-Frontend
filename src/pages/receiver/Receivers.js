@@ -101,7 +101,12 @@ const Receivers = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(JSON.stringify(errorData));
+                // Handle email uniqueness error specifically
+                if (errorData.details && 
+                    errorData.details.some(detail => detail.includes("RECEIVER_EMAIL_NOT_UNIQUE"))) {
+                    throw new Error("This email address is already registered as a receiver. Please use a different email.");
+                }
+                throw new Error(errorData.message || "An error occurred while saving the receiver");
             }
 
             showAlert('success', `Receiver ${editMode ? 'updated' : 'created'} successfully!`);
@@ -109,7 +114,7 @@ const Receivers = () => {
             handleClose();
         } catch (error) {
             console.error('Error saving receiver:', error);
-            showAlert('danger', `Failed to save receiver: ${error.message}`);
+            showAlert('danger', error.message);
         }
     };
 

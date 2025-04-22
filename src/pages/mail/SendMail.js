@@ -14,6 +14,7 @@ const SendMail = () => {
     const [selectedReceivers, setSelectedReceivers] = useState([]);
     const [alert, setAlert] = useState({ show: false, variant: '', message: '' });
     const [isLoading, setIsLoading] = useState(true);
+    const [isSending, setIsSending] = useState(false);
     const { eventId } = useParams();
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -129,12 +130,16 @@ const SendMail = () => {
             const endpoint = `send-mail?senderID=${selectedSender.value}&receiverIDs=${receiverIdsString}&mailTemplateID=${selectedTemplate.value}`;
 
             console.log('Sending request to:', endpoint);
+            
+            setIsSending(true);
 
             const response = await apiUtils.fetchApi(endpoint, {
                 method: 'POST'
             });
 
             const result = await response.json();
+
+            setIsSending(false);
 
             if (result.success) {
                 showAlert('success', '✅ All emails have been sent successfully!');
@@ -152,17 +157,17 @@ const SendMail = () => {
                     if (result.message) {
                         errorMessage += `\nReason: ${result.message}`;
                     }
-                } else if (result.message === "Authentication failed") {
+                } else if (result.message && result.message.includes("Authentication failed")) {
                     errorMessage = '🔒 Sender authentication failed. Please check the sender\'s email and app password.';
                     variant = 'danger';
-                } else if (result.message.includes("Template")) {
-                    errorMessage = '�� There was an issue with the email template. Please verify the template content.';
+                } else if (result.message && result.message.includes("Template")) {
+                    errorMessage = '📝 There was an issue with the email template. Please verify the template content.';
                     variant = 'warning';
-                } else if (result.message.includes("Invalid")) {
+                } else if (result.message && result.message.includes("Invalid")) {
                     errorMessage = '❌ Invalid request. Please check all selected values.';
                     variant = 'danger';
                 } else {
-                    errorMessage = result.message || '❌ An unexpected error occurred while sending emails.';
+                    errorMessage = result.message || 'Unknown error occurred';
                     variant = 'danger';
                 }
 
@@ -170,16 +175,8 @@ const SendMail = () => {
             }
         } catch (error) {
             console.error('Error sending emails:', error);
-            let errorMessage = '❌ Failed to send emails: ';
-            
-            try {
-                const parsedError = JSON.parse(error.message);
-                errorMessage += parsedError.message || 'Unknown error occurred';
-            } catch {
-                errorMessage += error.message || 'Unknown error occurred';
-            }
-            
-            showAlert('danger', errorMessage);
+            setIsSending(false);
+            showAlert('danger', 'Failed to send emails: ' + (error.message || 'Server error'));
         }
     };
 
