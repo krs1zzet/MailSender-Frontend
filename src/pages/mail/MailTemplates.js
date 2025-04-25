@@ -21,11 +21,11 @@ const MailTemplates = () => {
         setAlert({ show: true, variant, message });
         setTimeout(() => setAlert({ show: false }), 5000);
     };
-    
+
     const fetchTemplates = async () => {
         try {
             const response = await apiUtils.fetchApi(`mailTemplates/${eventId}`);
-            
+
             if (response.status === 404) {
                 setTemplates([]);
                 return;
@@ -34,11 +34,10 @@ const MailTemplates = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const textData = await response.text();
             const templateData = textData === "" ? [] : JSON.parse(textData);
             setTemplates(templateData);
-            
         } catch (error) {
             console.error('Error fetching templates:', error);
             setError('Failed to fetch templates. Please try again later.');
@@ -80,20 +79,20 @@ const MailTemplates = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const endpoint = editMode 
+            const endpoint = editMode
                 ? `mailTemplates/${currentTemplate.id}`
                 : 'mailTemplates';
-            
+
             const method = editMode ? 'PUT' : 'POST';
-            
+
             const templateData = {
                 header: currentTemplate.header,
                 body: currentTemplate.body,
                 eventId: parseInt(eventId)
             };
-            
+
             console.log('Sending template data:', templateData);
-            
+
             const response = await apiUtils.fetchApi(endpoint, {
                 method: method,
                 body: JSON.stringify(templateData)
@@ -136,47 +135,39 @@ const MailTemplates = () => {
     }
 
     return (
-        <Container className="mt-4 px-3">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>Mail Templates - {event?.name}</h2>
-                <Button variant="primary" onClick={handleShow}>
+        <Container className="mt-12 px-4 templates-container">
+            <div className="d-flex justify-content-between align-items-center mb-6">
+                <h2>Mail Templates</h2>
+                <Button className='btn-dark-blue' onClick={handleShow}>
                     Create New Template
                 </Button>
             </div>
 
             {alert.show && (
-                <Alert 
-                    variant={alert.variant} 
-                    onClose={() => setAlert({ show: false })} 
+                <Alert
+                    variant={alert.variant}
+                    onClose={() => setAlert({ show: false })}
                     dismissible
                 >
                     {alert.message}
                 </Alert>
             )}
 
-            {isLoading ? (
-                <div className="text-center">
-                    <span>Loading templates...</span>
-                </div>
-            ) : error ? (
-                <Alert variant="danger">{error}</Alert>
-            ) : templates.length === 0 ? (
-                <Alert variant="info">
-                    No templates found. Click "Create New Template" to add one.
-                </Alert>
-            ) : (
-                <Row className="row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    {templates.map((template) => (
-                        <Col key={template.id}>
-                            <Card 
-                                className="h-100 hover-shadow"
-                                style={{ 
-                                    transition: 'transform 0.2s',
-                                    width: '100%'
-                                }}
-                                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            >
+            <div className="templates-grid">
+                {isLoading ? (
+                    <div className="text-center py-5">
+                        <span>Loading templates...</span>
+                    </div>
+                ) : error ? (
+                    <Alert variant="danger">{error}</Alert>
+                ) : templates.length === 0 ? (
+                    <Alert variant="info">
+                        No templates found. Click "Create New Template" to add one.
+                    </Alert>
+                ) : (
+                    <div className="row-cols-2">
+                        {templates.map((template) => (
+                            <Card key={template.id} className="card">
                                 <Card.Body>
                                     <Card.Title>{template.header}</Card.Title>
                                     <Card.Text className="text-muted">
@@ -184,14 +175,14 @@ const MailTemplates = () => {
                                     </Card.Text>
                                 </Card.Body>
                                 <Card.Footer className="bg-transparent border-0 d-flex justify-content-between">
-                                    <Button 
-                                        variant="outline-primary" 
+                                    <Button
+                                        variant="outline-primary"
                                         className="me-2"
                                         onClick={() => handleEdit(template)}
                                     >
                                         Edit
                                     </Button>
-                                    <Button 
+                                    <Button
                                         variant="outline-danger"
                                         onClick={() => handleDelete(template.id)}
                                     >
@@ -199,10 +190,10 @@ const MailTemplates = () => {
                                     </Button>
                                 </Card.Footer>
                             </Card>
-                        </Col>
-                    ))}
-                </Row>
-            )}
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
@@ -212,7 +203,7 @@ const MailTemplates = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
+                        <Form.Group className="mb-5">
                             <Form.Label>Header</Form.Label>
                             <Form.Control
                                 type="text"
@@ -225,7 +216,7 @@ const MailTemplates = () => {
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3">
+                        <Form.Group className="mb-5">
                             <Form.Label>Body</Form.Label>
                             <Form.Control
                                 as="textarea"
@@ -239,7 +230,7 @@ const MailTemplates = () => {
                                 required
                             />
                         </Form.Group>
-                        <div className="d-flex justify-content-end gap-2">
+                        <div className="d-flex justify-content-end gap-4">
                             <Button variant="secondary" onClick={handleClose}>
                                 Cancel
                             </Button>
@@ -250,6 +241,13 @@ const MailTemplates = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
+
+            {/* Fixed "Geri Dön" button at the bottom */}
+            <div className="go-back-container">
+                <Button className='btn-dark-blue' onClick={() => navigate(-1)}>
+                    ← Geri Dön
+                </Button>
+            </div>
         </Container>
     );
 };

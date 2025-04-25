@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Navbar, Container, Nav, Modal, Button, Dropdown } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from './AuthContext'; 
 import AuthForm from '../AuthForm';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Navigation.css';
-import { FaInstagram, FaTwitter, FaYoutube, FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
+import { FaInstagram, FaTwitter, FaYoutube, FaUser, FaSignOutAlt, FaCog, FaEnvelope, FaArrowRight } from "react-icons/fa";
 
 import mail1 from './mail1.jpg'; 
 import mail2 from './mail2.jpg';
@@ -26,19 +26,34 @@ const Navigation = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
     
-    // User data check and refresh effect
-    useEffect(() => {
+    // Security enhancement: Use useCallback for functions used in useEffect
+    const refreshUserData = useCallback(() => {
         if (isAuthenticated) {
             refreshUserInfo();
         }
     }, [isAuthenticated, refreshUserInfo]);
+    
+    // User data check and refresh effect
+    useEffect(() => {
+        refreshUserData();
+    }, [refreshUserData]);
+
+    // Auto rotate slider every 4 seconds (increased from 3 for better user experience)
+    useEffect(() => {
+        const timer = setInterval(() => {
+            nextSlide();
+        }, 4000);
+        
+        // Clean up interval on component unmount
+        return () => clearInterval(timer);
+    }, []);
 
     // Auth form modal show
     const openAuthModal = () => {
         setShowAuthModal(true);
     };
 
-    // Logout handler
+    // Security enhancement: More robust logout handling
     const handleLogout = async () => {
         try {
             // Call the logout function from AuthContext first
@@ -49,59 +64,63 @@ const Navigation = () => {
             setModalMessage("Hesabınızdan başarıyla çıkış yaptınız.");
             setShowModal(true);
             
-            // Navigate to main page immediately
-            window.location.replace('/');
+            // Security enhancement: Use navigate instead of direct location manipulation
+            setTimeout(() => {
+                navigate('/');
+            }, 500);
         } catch (error) {
             console.error('Logout error:', error);
             
-            // Even if there's an error, still navigate to main page
-            window.location.replace('/');
-            
-            setModalTitle("Çıkış Yapıldı");
-            setModalMessage("Hesabınızdan çıkış yapıldı, ancak sunucu kaydı güncellenirken bir hata oluştu.");
+            setModalTitle("Çıkış Hatası");
+            setModalMessage("Hesabınızdan çıkış yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
             setShowModal(true);
+            
+            // Even if there's an error, still navigate to main page after delay
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
         }
     };
 
-
-    const nextSlide = () => {
+    // Enhanced slider controls with smoother animations
+    const nextSlide = useCallback(() => {
         if (isAnimating) return;
         setIsAnimating(true);
         setTimeout(() => {
             setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
             setTimeout(() => setIsAnimating(false), 500);
         }, 50);
-    };
+    }, [isAnimating, images.length]);
 
-    const prevSlide = () => {
+    const prevSlide = useCallback(() => {
         if (isAnimating) return;
         setIsAnimating(true);
         setTimeout(() => {
             setActiveIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
             setTimeout(() => setIsAnimating(false), 500);
         }, 50);
-    };
+    }, [isAnimating, images.length]);
 
-   
+    // Enhanced image class calculation with improved logic
     const getImageClass = (index) => {
-        if (index === activeIndex) return 'active';
+        if (index === activeIndex) return 'active fade-in';
         
-       
+        // Left position
         if ((index === activeIndex - 1) || (activeIndex === 0 && index === images.length - 1)) {
             return 'position-1'; 
         }
         
-       
+        // Right position
         if ((index === activeIndex + 1) || (activeIndex === images.length - 1 && index === 0)) {
             return 'position-3'; 
         }
         
-       
+        // Far left position
         if ((index === activeIndex - 2) || (activeIndex <= 1 && index === images.length - (2 - activeIndex))) {
             return 'position-2'; 
         }
         
-        
+        // Far right position
         if ((index === activeIndex + 2) || (activeIndex >= images.length - 2 && index === (activeIndex + 2) % images.length)) {
             return 'position-4';
         }
@@ -116,7 +135,7 @@ const Navigation = () => {
     };
 
     return (
-        <div>
+        <div className="site-wrapper">
             <Navbar expand="lg" className="custom-navbar">
                 <Container>
                     <Navbar.Brand as={Link} to="/" className="custom-navbar-brand">
@@ -133,12 +152,7 @@ const Navigation = () => {
                         <Nav className="ms-auto nav-links">
                             {isAuthenticated && (
                                 <>
-                                    <Nav.Link as={Link} to="/create-event" className="nav-item" active={location.pathname === '/create-event'}>
-                                        Etkinlik Oluştur
-                                    </Nav.Link>
-                                    <Nav.Link as={Link} to="/my-events" className="nav-item" active={location.pathname === '/my-events'}>
-                                        Etkinliklerim
-                                    </Nav.Link>
+                                    
                                     
                                     <Dropdown align="end">
                                         <Dropdown.Toggle variant="link" id="dropdown-user" className="nav-link nav-item user-dropdown">
@@ -146,12 +160,7 @@ const Navigation = () => {
                                         </Dropdown.Toggle>
 
                                         <Dropdown.Menu>
-                                            <Dropdown.Item as={Link} to="/profile">
-                                                <FaUser className="me-2" /> Profil
-                                            </Dropdown.Item>
-                                            <Dropdown.Item as={Link} to="/settings">
-                                                <FaCog className="me-2" /> Ayarlar
-                                            </Dropdown.Item>
+                                            
                                             <Dropdown.Divider />
                                             <Dropdown.Item onClick={handleLogout}>
                                                 <FaSignOutAlt className="me-2" /> Çıkış Yap
@@ -171,15 +180,15 @@ const Navigation = () => {
                 </Container>
             </Navbar>
 
-      
             {location.pathname === '/' && !isAuthenticated && (
                 <div className="arkaplan">
-                    {/* Image Slider */}
+                    {/* Modernized Image Slider */}
                     <div className="slider-container">
                         <button 
                             className="slider-btn left" 
                             onClick={prevSlide}
                             disabled={isAnimating}
+                            aria-label="Previous slide"
                         >&#10094;</button>
                         <div className="slider">
                             {images.map((img, index) => (
@@ -188,6 +197,7 @@ const Navigation = () => {
                                     src={img} 
                                     alt={`Resim ${index + 1}`}
                                     className={getImageClass(index)}
+                                    loading="lazy"
                                 />
                             ))}
                         </div>
@@ -195,112 +205,131 @@ const Navigation = () => {
                             className="slider-btn right" 
                             onClick={nextSlide}
                             disabled={isAnimating}
+                            aria-label="Next slide"
                         >&#10095;</button>
+                        
+                        {/* Slider indicators for better UX */}
+                        <div className="slider-indicators">
+                            {images.map((_, index) => (
+                                <span 
+                                    key={index} 
+                                    className={`indicator ${index === activeIndex ? 'active' : ''}`}
+                                    onClick={() => {
+                                        if (!isAnimating) {
+                                            setIsAnimating(true);
+                                            setActiveIndex(index);
+                                            setTimeout(() => setIsAnimating(false), 500);
+                                        }
+                                    }}
+                                ></span>
+                            ))}
+                        </div>
                     </div>
 
-                  
-                    <div className="auth-button-container" style={{ 
-                        textAlign: 'center', 
-                        marginTop: '20px', 
-                        marginBottom: '20px',
-                        position: 'relative',
-                        zIndex: 10
-                    }}>
-                        <Button 
-                            variant="dark" 
-                            size="lg"
-                            onClick={openAuthModal}
-                            className="auth-button"
-                            style={{
-                                padding: '30px 24px',
-                                fontWeight: 'bold',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                          CREATE
-                        </Button>
-                    </div>
-                    
+                    {/* Redesigned Create Button */}
+                    <div className="auth-button-container">
+  <button 
+    onClick={openAuthModal}
+    className="premium-create-button"
+  >
+    <span className="button-glow"></span>
+    <span className="button-content">
+      <span className="button-icon"><FaEnvelope /></span>
+      <span className="button-text">CREATE</span>
+    </span>
+  </button>
+</div>
                     <div className="container">
                         <div className="ok">
                             <img src={okkk} alt="ok" />
                         </div>
                     </div>
 
-                   
-                    <div className="flow-container">
-                      
-                        <div className="flow-row">
-                          
-             <div className="flow-box">
-                                <div className="box-title">Giriş Yapın ya da Üye Olun</div>
-                                <div className="box-content">
-                                    Siteyi kullanabilmek için hesabınıza giriş yapın veya yeni bir hesap oluşturun.
-                                </div>
-                                <div className="arrow-right">➜</div>
-                            </div>
-                            
-                          
-                            <div className="flow-box">
-                                <div className="box-title">Yeni Etkinlik Oluşturun</div>
-                                <div className="box-content">
-                                    Ardından, "Create Event" butonuna tıklayarak yeni bir etkinlik oluşturun.
-                                </div>
-                                <div className="arrow-right">➜</div>
-                            </div>
-                            
-                           
-                            <div className="flow-box">
-                                <div className="box-title">Etkinliği Seçin</div>
-                                <div className="box-content">
-                                    Oluşturduğunuz etkinliği seçmek için "Select Event" seçeneğini kullanın.
-                                </div>
-                                <div className="arrow-down">⬇</div>
-                            </div>
-                        </div>
-                        
-                      
-                        <div className="flow-row last-row">
-                            
-                            <div className="flow-box">
-                                <div className="box-title">Gönderin</div>
-                                <div className="box-content">
-                                    Son olarak, etkinlik bilgilerini içeren maili göndermek için "Send" butonuna tıklayın.
-                                </div>
-                            </div>
-                            
-                          
-                            <div className="flow-box">
-                                <div className="box-title">Gönderen ve Alıcılar Ekleyin</div>
-                                <div className="box-content">
-                                    "Senders" ve "Receivers" kısmını ekleyin. Senders eklerken, Google Hesabınızdan Gmail App Şifrenizi oluşturmayı unutmayın.
-                                </div>
-                                <div className="arrow-right">➜</div>
-                            </div>
-                            
-                          
-                            <div className="flow-box">
-                                <div className="box-title">Mail Şablonları Oluşturun</div>
-                                <div className="box-content">
-                                    Yeni sayfada, etkinliğiniz için özel mail şablonları oluşturun.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    {/* Improved Responsive Flow Chart */}
+                   {/* Improved Responsive Flow Chart */}
+                  
+<div class="flow-container">
+    <div class="flow-row">
+        <div class="flow-box">
+            <div class="box-title">Giriş Yapın ya da Üye Olun</div>
+            <div class="box-content">
+                Siteyi kullanabilmek için hesabınıza giriş yapın veya yeni bir hesap oluşturun.
+            </div>
+            <div class="arrow"></div>
+        </div>
+        
+        <div class="flow-box">
+            <div class="box-title">Yeni Etkinlik Oluşturun</div>
+            <div class="box-content">
+                Ardından, "Create Event" butonuna tıklayarak yeni bir etkinlik oluşturun.
+            </div>
+            <div class="arrow"></div>
+        </div>
+        
+        <div class="flow-box">
+            <div class="box-title">Etkinliği Seçin</div>
+            <div class="box-content">
+                Oluşturduğunuz etkinliği seçmek için "Select Event" seçeneğini kullanın.
+            </div>
+            <div class="arrow"></div>
+        </div>
+    </div>
+    
+    <div class="flow-row last-row">
+        <div class="flow-box">
+            <div class="box-title">Gönderin</div>
+            <div class="box-content">
+                Son olarak, etkinlik bilgilerini içeren maili göndermek için "Send" butonuna tıklayın.
+            </div>
+        </div>
+        
+        <div class="flow-box">
+            <div class="box-title">Gönderen ve Alıcılar Ekleyin</div>
+            <div class="box-content">
+                "Senders" ve "Receivers" kısmını ekleyin. Senders eklerken, Google Hesabınızdan Gmail App Şifrenizi oluşturmayı unutmayın.
+            </div>
+            <div class="arrow"></div>
+        </div>
+        
+        <div class="flow-box">
+            <div class="box-title">Mail Şablonları Oluşturun</div>
+            <div class="box-content">
+                Yeni sayfada, etkinliğiniz için özel mail şablonları oluşturun.
+            </div>
+            <div class="arrow"></div>
+        </div>
+    </div>
+</div>
+               </div>
             )}
 
-           
             {isAuthenticated && location.pathname === '/' && (
                 <div className="welcome-container">
                     <div className="welcome-message">
                         <h2>Hoş Geldiniz, {user?.fullName || user?.name || user?.email?.split('@')[0] || "Kullanıcı"}!</h2>
+                        <p>Email Management System'de etkinliklerinizi yönetmeye başlayabilirsiniz.</p>
+                        <div className="welcome-actions">
+                            <Button 
+                                as={Link} 
+                                to="/create-event" 
+                                variant="primary" 
+                                className="action-button"
+                            >
+                                Etkinlik Oluştur
+                            </Button>
+                            <Button 
+                                as={Link} 
+                                to="/my-events" 
+                                variant="outline-primary" 
+                                className="action-button"
+                            >
+                                Etkinliklerimi Görüntüle
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}
 
-           
             <Modal 
                 show={showAuthModal} 
                 onHide={() => setShowAuthModal(false)} 
@@ -315,7 +344,6 @@ const Navigation = () => {
                 </Modal.Body>
             </Modal>
 
-          
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>{modalTitle}</Modal.Title>
@@ -328,7 +356,6 @@ const Navigation = () => {
                 </Modal.Footer>
             </Modal>
 
-        
             {location.pathname === '/' && !isAuthenticated && (
                 <div>
                     <div className="long-line"></div>
@@ -336,24 +363,15 @@ const Navigation = () => {
                     {/* Contact section with consistent yellow background */}
                     <div className="plan">
                         <div className="text3">
-                            <p>İletişim Adreslerimiz:</p>
+                            <p>BİZ KİMİZ</p>
                             <hr />
                         </div>
-                        <div className="social-links">
-                            <a href="https://instagram.com/ytuskylab" target="_blank" rel="noopener noreferrer">
-                                <FaInstagram />
-                            </a>
-                            <a href="https://twitter.com/ytuskylab" target="_blank" rel="noopener noreferrer">
-                                <FaTwitter />
-                            </a>
-                            <a href="https://youtube.com/channel/ytuskylab" target="_blank" rel="noopener noreferrer">
-                                <FaYoutube />
-                            </a>
-                        </div>
+                       
                         <ul className="footer-links">
                             <li><Link to="/about" className="nav-item">Hakkımızda</Link></li>
                             <li><Link to="/iletisim" className="nav-item">İletişim</Link></li>
-                            <li><Link to="/biz" className="nav-item">Biz Kimiz</Link></li>
+                            <li><Link to="/gizlilik" className="nav-item">Gizlilik</Link></li>
+                            <li><Link to="/guvenlik" className="nav-item">Güvenlik</Link></li>
                         </ul>
                     </div>
                 </div>

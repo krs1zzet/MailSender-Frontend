@@ -1,25 +1,34 @@
-// About.js
 import React from 'react';
 import './iletisim.css';
 
-const About = () => {
+const Iletisim = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert('Mesajınız başarıyla gönderildi!');
+  };
+
   return (
-    <div className="page-container">
-      <h1>Hakkımızda</h1>
-      <div className="page-content">
-        <p>Email Management System, kurumsal e-posta iletişimini yönetmek için tasarlanmış kapsamlı bir platformdur.</p>
-        <p>Sistemimiz, e-postaların etkin bir şekilde organize edilmesi, izlenmesi ve yanıtlanması için geliştirilmiş özellikler sunar.</p>
-        <p>Amacımız, kullanıcılarımızın iletişim süreçlerini basitleştirmek ve verimliliği artırmaktır.</p>
-        
-        <h2>Misyonumuz</h2>
-        <p>Kurumların ve bireylerin e-posta iletişimini en verimli şekilde yönetmelerini sağlamak ve iş süreçlerini hızlandırmak.</p>
-        
-        <h2>Vizyonumuz</h2>
-        <p>E-posta yönetimi alanında lider platform olarak, kullanıcılarımıza en yenilikçi ve kullanıcı dostu çözümleri sunmak.</p>
+    <div className="iletisim-container">
+      <h2>Bizimle İletişime Geçin</h2>
+      <form className="iletisim-form" onSubmit={handleSubmit}>
+        <input type="text" placeholder="Adınız Soyadınız" required />
+        <input type="email" placeholder="E-posta Adresiniz" required />
+        <textarea placeholder="Mesajınız..." rows="5" required></textarea>
+        <button type="submit">Gönder</button>
+      </form>
+
+      <div className="sosyal-medya">
+        <h3>Sosyal Medya</h3>
+        <ul>
+          <li><a href="https://www.instagram.com/ytuskylab/" target="_blank" rel="noreferrer">📸 Instagram</a></li>
+          <li><a href="https://www.linkedin.com/company/skylabytu/" target="_blank" rel="noreferrer">🔗 LinkedIn</a></li>
+          <li><a href="https://www.youtube.com/@ytuskylab" target="_blank" rel="noreferrer">▶️ YouTube</a></li>
+          <li>📧 E-posta: <a href="mailto:skylab@ytu.edu.tr">skylab@ytu.edu.tr</a></li>
+          <li>📞 Telefon: +90 212 123 45 67</li>
+        </ul>
       </div>
     </div>
   );
 };
 
-export default About;
-
+export default Iletisim;

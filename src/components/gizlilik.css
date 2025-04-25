@@ -1,0 +1,44 @@
+.gizlilik {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  color: #333;
+  font-family: sans-serif;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #1e3a8a;
+}
+
+.guncelleme {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+h2 {
+  font-size: 1.3rem;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+@media (max-width: 600px) {
+  .gizlilik {
+    padding: 15px;
+  }
+}

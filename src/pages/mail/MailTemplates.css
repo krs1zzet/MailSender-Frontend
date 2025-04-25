@@ -1,38 +1,56 @@
 /* MailTemplates.css */
-.card {
-    min-width: 250px;
-    margin-bottom: 15px;
-  }
-  
-  .card-body {
-    padding: 1.25rem;
-  }
-  
-  .card-title {
-    font-size: 1.2rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .card-text {
-    min-height: 60px;
-  }
-
-  /* MailTemplates.css */
-.row-cols-md-2 > .col:nth-child(odd) {
-  clear: left;
+/* Card Grid Layout */
+.row-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 15px;
 }
 
-.row-cols-lg-3 > .col:nth-child(3n+1) {
-  clear: left;
+/* Responsive grid adjustments */
+@media (min-width: 576px) {
+  .row-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .row-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .row-cols-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .row-cols-2 {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .card {
+  width: 100%;
+  height: 100%;
+  margin-bottom: 15px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
 }
 
 .card-body {
   padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .card-title {
@@ -40,6 +58,79 @@
   margin-bottom: 0.75rem;
 }
 
-.hover-shadow:hover {
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+.card-text {
+  min-height: 60px;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.card-footer {
+  margin-top: auto;
+  padding: 1rem;
+  background-color: transparent;
+  border-top: none;
+}
+
+/* Button styling */
+.btn-dark-blue {
+  background-color: #0e2158;
+  border-color: #003366;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.btn-dark-blue:hover {
+  background-color: #002855;
+  border-color: #002855;
+  color: white;
+}
+
+/* Container spacing */
+.mt-12 {
+  margin-top: 3rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-7 {
+  margin-top: 2rem;
+}
+
+/* Fixed position for Go Back button container */
+.go-back-container {
+  position: sticky;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  margin-top: 2rem;
+  z-index: 10;
+}
+
+/* For proper spacing of alerts */
+.alert {
+  margin-bottom: 1.5rem;
+}
+
+/* Form elements in modal */
+.mb-5 {
+  margin-bottom: 1rem;
+}
+
+/* Make sure content has minimum height for shorter pages */
+.templates-container {
+  min-height: calc(100vh - 250px);
+  display: flex;
+  flex-direction: column;
+}
+
+.templates-grid {
+  flex-grow: 1;
 }

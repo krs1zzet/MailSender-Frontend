@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Events.css'; // CSS dosyasını doğru şekilde import ettim
+import './Events.css';
 import apiUtils from '../../utils/apiUtils';
 
 const Events = () => {
@@ -112,16 +112,19 @@ const Events = () => {
             console.error('Error storing event:', error);
         }
     };
-
     return (
-        <Container className="py-8">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="mb-0">Events</h2>
-                <Button variant="secondary" onClick={handleShow}>
-                    Create New Event
-                </Button>
+        <Container className="events-container">
+            <div className="page-header">
+                <div className="left-header">
+                    <h2 className="event">Events</h2>
+                </div>
+                <div className="right-header">
+                    <Button className="btn-custom-primary create-event-btn" onClick={handleShow}>
+                        Create New Event
+                    </Button>
+                </div>
             </div>
-
+            
             {alert.show && (
                 <Alert 
                     variant={alert.variant} 
@@ -132,16 +135,16 @@ const Events = () => {
                 </Alert>
             )}
 
-            <Row className="g-4"> {/* Burada padding sorununu düzelttim, g-12 yerine g-4 kullandım */}
+            <Row className="card-row">
                 {events.length === 0 ? (
-                    <Col xs={8}>
+                    <Col xs={14}>
                         <div className="text-center p-5 bg-light rounded">
                             <p className="mb-0">No events found. Click "Create New Event" to get started.</p>
                         </div>
                     </Col>
                 ) : (
                     events.map((event) => (
-                        <Col md={6} lg={4} key={event.id}>
+                        <Col md={8} lg={6} key={event.id} className="card-column">
                             <Card className="event-card h-100 shadow-sm">
                                 <Card.Body className="d-flex flex-column">
                                     <Card.Title className="event-title">{event.name}</Card.Title>
@@ -154,7 +157,7 @@ const Events = () => {
                                     <div className="mt-auto">
                                         <div className="d-grid mb-2">
                                             <Button 
-                                                variant="success" 
+                                                className="btn-custom-primary w-100"
                                                 onClick={() => handleSelectEvent(event)}
                                             >
                                                 Select
@@ -163,7 +166,7 @@ const Events = () => {
                                         <div className="d-flex justify-content-between">
                                             <Button 
                                                 variant="outline-primary" 
-                                                className="flex-grow-1 me-2"
+                                                className="flex-grow-1 me-2 edit-btn"
                                                 onClick={() => handleEdit(event)}
                                                 size="sm"
                                             >
@@ -171,7 +174,7 @@ const Events = () => {
                                             </Button>
                                             <Button 
                                                 variant="outline-danger"
-                                                className="flex-grow-1"
+                                                className="flex-grow-1 delete-btn"
                                                 onClick={() => handleDelete(event.id)}
                                                 size="sm"
                                             >
@@ -251,7 +254,7 @@ const Events = () => {
                             <Button variant="secondary" onClick={handleClose}>
                                 Cancel
                             </Button>
-                            <Button variant="primary" type="submit">
+                            <Button className="btn-custom-primary" type="submit">
                                 {editMode ? 'Save Changes' : 'Create Event'}
                             </Button>
                         </div>

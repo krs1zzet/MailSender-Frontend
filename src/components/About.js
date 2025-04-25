@@ -1,70 +1,46 @@
 import React from 'react';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaInstagram, FaTwitter } from 'react-icons/fa';
 import './about.css';
 
-const Contact = () => {
+const About = () => {
   return (
-    <div className="page-container">
-      <h1>İletişim</h1>
-      <div className="page-content">
-        <div className="contact-info">
-          <div className="contact-item">
-            <FaEnvelope className="contact-icon" />
-            <p>info@emailmanagementsystem.com</p>
+    <div className="about-page">
+      <section className="about-hero">
+        <div className="container">
+          <h1>Biz Kimiz?</h1>
+          <p>Email Management System; sade, güvenli ve etkili toplu e-posta gönderimi için geliştirilen modern bir çözümdür. Amacımız tamamen hayat kolaylaştıran bir mail gönderme sitesi yapmaktır.</p>
+        </div>
+      </section>
+
+      <div className="about-container">
+        <div className="about-card">
+          <h2>Misyonumuz</h2>
+          <p>İletişimi kolaylaştırmak için herkesin kullanabileceği güvenli ve esnek bir e-posta sistemi sunmak.</p>
+        </div>
+        <div className="about-card">
+          <h2>Vizyonumuz</h2>
+          <p>Dijital iletişimde öncü olarak global çapta en çok tercih edilen platform olmak.</p>
+        </div>
+
+        <h2>Ekibimiz</h2>
+        <div className="team-section">
+          <div className="team-member">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Team Member" className="team-avatar" />
+            <div className="team-name">Zeynep Kaya</div>
+            <div className="team-position">Frontend Developer</div>
           </div>
-          
-          <div className="contact-item">
-            <FaPhone className="contact-icon" />
-            <p>+90 212 123 4567</p>
-          </div>
-          
-          <div className="contact-item">
-            <FaMapMarkerAlt className="contact-icon" />
-            <p>Davutpaşa Kampüsü, YTÜ Teknoloji Geliştirme Bölgesi, 34220 Esenler/İstanbul</p>
+          <div className="team-member">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Team Member" className="team-avatar" />
+            <div className="team-name">Emir Karaca</div>
+            <div className="team-position">Backend Developer</div>
           </div>
         </div>
+
         
-        <div className="social-contact">
-          <h2>Sosyal Medya</h2>
-          <div className="social-links-contact">
-            <a href="https://instagram.com/ytuskylab" target="_blank" rel="noopener noreferrer">
-              <FaInstagram /> @ytuskylab
-            </a>
-            <a href="https://twitter.com/kullaniciadiniz" target="_blank" rel="noopener noreferrer">
-              <FaTwitter /> @kullaniciadiniz
-            </a>
-          </div>
-        </div>
-        
-        <div className="contact-form">
-          <h2>Bizimle İletişime Geçin</h2>
-          <form>
-            <div className="form-group">
-              <label htmlFor="name">Ad Soyad</label>
-              <input type="text" id="name" name="name" required />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="email">E-posta</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="subject">Konu</label>
-              <input type="text" id="subject" name="subject" required />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="message">Mesajınız</label>
-              <textarea id="message" name="message" rows="5" required></textarea>
-            </div>
-            
-            <button type="submit" className="contact-submit">Gönder</button>
-          </form>
-        </div>
+
+       
       </div>
     </div>
   );
 };
 
-export default Contact;
+export default About;

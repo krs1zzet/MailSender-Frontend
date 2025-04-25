@@ -228,6 +228,12 @@ const Senders = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
+
+            <div className="text-center mt-5">
+                            <Button className='btn-dark-blue' onClick={() => navigate(-1)}>
+                                ← Geri Dön
+                            </Button>
+                        </div>
         </div>
     );
 };

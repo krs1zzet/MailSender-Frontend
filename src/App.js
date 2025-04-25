@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import LoadingSpinner from './components/LoadingSpinner';
 import { AuthContext, AuthProvider } from './components/AuthContext';
@@ -14,13 +14,26 @@ import Receivers from './pages/receiver/Receivers';
 import ErrorPage from './pages/error/ErrorPage';
 import About from './components/About';
 import Iletisim from './components/iletisim';
+import Gizlilik from './components/gizlilik';
+import Guvenlik from './components/guvenlik';
+
+// ScrollToTop component to handle scrolling to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  
+  return null;
+}
 
 // Define ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = React.useContext(AuthContext);
   
   if (loading) return <LoadingSpinner />;
-  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   
   return children;
 };
@@ -29,23 +42,17 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop /> {/* Bu satırı ekledik - route değişikliğinde scroll'u sıfırlar */}
         <div className="App">
           <Navigation />
           <Routes>
             <Route path="/" element={
               <AuthContext.Consumer>
-                {({ isAuthenticated }) => 
+                {({ isAuthenticated }) =>
                   isAuthenticated ? <Navigate to="/events" /> : <div className="landing-page"></div>
                 }
               </AuthContext.Consumer>
             } />
-           
-              
-               
-                  
-                
-              
-         
             
             {/* Protected routes */}
             <Route path="/events" element={
@@ -87,6 +94,8 @@ function App() {
             {/* Public routes */}
             <Route path="/about" element={<About />} />
             <Route path="/iletisim" element={<Iletisim />} />
+            <Route path="/gizlilik" element={<Gizlilik />} />
+            <Route path="/guvenlik" element={<Guvenlik />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<ErrorPage />} />

@@ -3,7 +3,7 @@ import { Table, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import apiUtils from '../../utils/apiUtils';
-
+import './Receiver.css';
 
 const Receivers = () => {
     const [receivers, setReceivers] = useState([]);
@@ -226,7 +226,7 @@ const Receivers = () => {
             )}
 
             <div className="d-flex justify-content-between mb-3">
-                <Button variant="primary" onClick={handleShow}>
+                <Button className='new-receiver' onClick={handleShow}>
                     Add New Receiver
                 </Button>
 
@@ -337,6 +337,12 @@ const Receivers = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
+
+             <div className="text-center mt-5">
+                            <Button className='btn-dark-blue' onClick={() => navigate(-1)}>
+                                ← Geri Dön
+                            </Button>
+                        </div>
         </div>
     );
 };

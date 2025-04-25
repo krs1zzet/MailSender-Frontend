@@ -4,6 +4,7 @@ import Select from 'react-select';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiUtils from '../../utils/apiUtils';
+import './SendMail.css'; // We'll create this CSS file
 
 const SendMail = () => {
     const [mailTemplates, setMailTemplates] = useState([]);
@@ -17,7 +18,7 @@ const SendMail = () => {
     const [isSending, setIsSending] = useState(false);
     const { eventId } = useParams();
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+    
     useEffect(() => {
         const storedEvent = localStorage.getItem('selectedEvent');
         if (storedEvent) {
@@ -128,8 +129,6 @@ const SendMail = () => {
                 .join(',');
 
             const endpoint = `send-mail?senderID=${selectedSender.value}&receiverIDs=${receiverIdsString}&mailTemplateID=${selectedTemplate.value}`;
-
-            console.log('Sending request to:', endpoint);
             
             setIsSending(true);
 
@@ -180,95 +179,126 @@ const SendMail = () => {
         }
     };
 
+    const customSelectStyles = {
+        control: (provided) => ({
+            ...provided,
+            borderRadius: '6px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            borderColor: '#ced4da',
+            '&:hover': {
+                borderColor: '#80bdff'
+            }
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#0e2158' : state.isFocused ? '#f8f9fa' : null,
+            color: state.isSelected ? 'white' : 'black',
+        }),
+    };
+
     return (
-        <Container className="mt-4">
-            {isLoading ? (
-                <div className="text-center">Loading...</div>
-            ) : (
-                <>
-                    <h2>Send Emails</h2>
-                    
-                    {alert.show && (
-                        <Alert 
-                            variant={alert.variant} 
-                            onClose={() => setAlert({ show: false })} 
-                            dismissible
-                            className="d-flex align-items-center"
-                            style={{ 
-                                fontSize: '1.1rem',
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                            }}
-                        >
-                            <div style={{ whiteSpace: 'pre-line' }}>
-                                {alert.message}
-                            </div>
-                        </Alert>
-                    )}
+        <Container className="send-mail-container">
+            <div className="content-wrapper">
+                <div className="header-section">
+                    <h2 className="page-title">Send Emails</h2>
+                </div>
+                
+                {isLoading ? (
+                    <div className="loading-indicator">
+                        <span>Loading...</span>
+                    </div>
+                ) : (
+                    <div className="form-section">
+                        {alert.show && (
+                            <Alert 
+                                variant={alert.variant} 
+                                onClose={() => setAlert({ show: false })} 
+                                dismissible
+                                className="custom-alert"
+                            >
+                                <div className="alert-message">
+                                    {alert.message}
+                                </div>
+                            </Alert>
+                        )}
 
-                    {mailTemplates.length === 0 && (
-                        <Alert variant="warning">
-                            No mail templates available. Please create a template first.
-                        </Alert>
-                    )}
+                        {mailTemplates.length === 0 && (
+                            <Alert variant="warning" className="warning-alert">
+                                No mail templates available. Please create a template first.
+                            </Alert>
+                        )}
 
-                    {senders.length === 0 && (
-                        <Alert variant="warning">
-                            No senders available. Please add a sender first.
-                        </Alert>
-                    )}
+                        {senders.length === 0 && (
+                            <Alert variant="warning" className="warning-alert">
+                                No senders available. Please add a sender first.
+                            </Alert>
+                        )}
 
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Mail Template</Form.Label>
-                            <Select
-                                value={selectedTemplate}
-                                onChange={setSelectedTemplate}
-                                options={mailTemplates}
-                                placeholder="Select a template..."
-                                isSearchable
-                            />
-                        </Form.Group>
+                        <Form onSubmit={handleSubmit} className="email-form">
+                            <Form.Group className="form-group">
+                                <Form.Label>Mail Template</Form.Label>
+                                <Select
+                                    value={selectedTemplate}
+                                    onChange={setSelectedTemplate}
+                                    options={mailTemplates}
+                                    placeholder="Select a template..."
+                                    isSearchable
+                                    styles={customSelectStyles}
+                                    className="react-select"
+                                />
+                            </Form.Group>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Sender Email</Form.Label>
-                            <Select
-                                value={selectedSender}
-                                onChange={setSelectedSender}
-                                options={senders}
-                                placeholder="Select a sender..."
-                                isSearchable
-                            />
-                        </Form.Group>
+                            <Form.Group className="form-group">
+                                <Form.Label>Sender Email</Form.Label>
+                                <Select
+                                    value={selectedSender}
+                                    onChange={setSelectedSender}
+                                    options={senders}
+                                    placeholder="Select a sender..."
+                                    isSearchable
+                                    styles={customSelectStyles}
+                                    className="react-select"
+                                />
+                            </Form.Group>
 
-                        <Form.Group className="mb-3">
-                            <Form.Label>Receivers</Form.Label>
-                            <Select
-                                value={selectedReceivers}
-                                onChange={setSelectedReceivers}
-                                options={receivers}
-                                placeholder="Select receivers..."
-                                isMulti
-                                isSearchable
-                            />
-                            <Form.Text className="text-muted">
-                                You can select multiple receivers
-                            </Form.Text>
-                        </Form.Group>
+                            <Form.Group className="form-group">
+                                <Form.Label>Receivers</Form.Label>
+                                <Select
+                                    value={selectedReceivers}
+                                    onChange={setSelectedReceivers}
+                                    options={receivers}
+                                    placeholder="Select receivers..."
+                                    isMulti
+                                    isSearchable
+                                    styles={customSelectStyles}
+                                    className="react-select"
+                                />
+                                <Form.Text className="helper-text">
+                                    You can select multiple receivers
+                                </Form.Text>
+                            </Form.Group>
 
-                        <Button 
-                            variant="primary" 
-                            type="submit"
-                            disabled={!selectedTemplate || !selectedSender || selectedReceivers.length === 0}
-                        >
-                            Send Emails
-                        </Button>
-                    </Form>
-                </>
-            )}
+                            <Button 
+                                variant="primary" 
+                                type="submit"
+                                disabled={isSending || !selectedTemplate || !selectedSender || selectedReceivers.length === 0}
+                                className="submit-button"
+                            >
+                                {isSending ? 'Sending...' : 'Send Emails'}
+                            </Button>
+                        </Form>
+                    </div>
+                )}
+            </div>
+            
+            {/* Fixed position back button */}
+            <div className="go-back-container">
+                <Button className='btn-dark-blue' onClick={() => navigate(-1)}>
+                    ← Geri Dön
+                </Button>
+            </div>
         </Container>
     );
 };
 
-export default SendMail; 
+export default SendMail;
