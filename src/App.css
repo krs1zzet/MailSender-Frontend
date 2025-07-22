@@ -1,3 +1,56 @@
+/* Temalar */
+
+/* Açık Tema */
+body.light-theme {
+  background-color: #f9f9f9;
+  color: #000;
+}
+
+/* Karanlık Tema */
+body.dark-theme {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+/* Navbar teması */
+body.light-theme .ozel-navbar {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+body.dark-theme .ozel-navbar {
+  background-color: #222;
+  color: #fff;
+}
+
+/* Navbar linkleri */
+body.light-theme .menu-link {
+  color: #000;
+}
+
+body.dark-theme .menu-link {
+  color: #f1f1f1;
+}
+
+/* Navbar giriş linkleri */
+body.light-theme .menu-giris {
+  color: #007bff;
+}
+
+body.dark-theme .menu-giris {
+  color: #66b2ff;
+}
+
+/* Tema değiştirme butonu */
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: inherit;
+}
+
+/* App genel stilleri */
 .App {
   text-align: center;
 }
@@ -13,113 +66,92 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.hover-shadow:hover {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-}
-
+/* Kartlar, kutular */
 .card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+body.dark-theme .card {
+  background-color: #1f1f1f;
+  color: #f1f1f1;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Kart içerikleri */
 .card-body {
-    padding: 1.5rem;
+  padding: 1.5rem;
 }
 
-.text-primary { color: #007bff !important; }
-.text-success { color: #28a745 !important; }
-.text-info { color: #17a2b8 !important; }
-.text-warning { color: #ffc107 !important; }
-
+/* Başlıklar */
 .display-4 {
-    font-size: 3rem;
+  font-size: 3rem;
 }
 
-/* Event card specific styles */
-.event-card {
-    transition: all 0.3s ease;
+/* Hover efektler */
+.hover-shadow:hover {
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
-.event-card:hover {
-    transform: translateY(-5px);
+/* Butonlar */
+button {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-/* Feature card specific styles */
-.feature-card {
-    cursor: pointer;
-}
-
-.feature-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Color themes */
-.theme-primary { background-color: rgba(0, 123, 255, 0.1); }
-.theme-success { background-color: rgba(40, 167, 69, 0.1); }
-.theme-info { background-color: rgba(23, 162, 184, 0.1); }
-.theme-warning { background-color: rgba(255, 193, 7, 0.1); }
-
-/* Operation card styles */
-.operation-card {
-    transition: all 0.3s ease;
-}
-
-.operation-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-}
-
-.operation-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.operation-card:hover .operation-icon {
-    transform: scale(1.1);
-}
-
+/* Özelleştirilmiş container */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.container button {
-  margin-top: -20px; /* Butonu yukarı taşır */
-  position: relative;
-  z-index: 10; /* Butonun diğer elementlerin üzerinde görünmesini sağlar */
+/* Event kart özel */
+.event-card {
+  transition: all 0.3s ease;
 }
 
-/* Alternatif olarak, butonu tamamen navbar'a taşımak isterseniz */
-.container button {
-  position: absolute;
-  top: 10px;
-  right: 20px;
+.event-card:hover {
+  transform: translateY(-5px);
 }
+
+/* Operation kart */
+.operation-card {
+  transition: all 0.3s ease;
+}
+
+.operation-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* Operation icon */
+.operation-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.operation-card:hover .operation-icon {
+  transform: scale(1.1);
+}
+
+/* Renk temaları */
+.theme-primary { background-color: rgba(0, 123, 255, 0.1); }
+.theme-success { background-color: rgba(40, 167, 69, 0.1); }
+.theme-info { background-color: rgba(23, 162, 184, 0.1); }
+.theme-warning { background-color: rgba(255, 193, 7, 0.1); }
+
+/* Linkler için */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+

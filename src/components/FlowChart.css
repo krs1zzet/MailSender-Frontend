@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Inter&display=swap');
+
+:root {
+  --primary-color: #002c7a;
+  --accent-color: #084f97;
+  --text-dark: #0a1736;
+  --text-light: #4a5a7a;
+  --white: #fff;
+}
+
+.flow-simple-container {
+  max-width: 1700px;
+  margin: 50px auto;
+  padding: 0 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  justify-content: center;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+.flow-simple-box {
+  background-color: var(--white);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 25px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-dark);
+}
+
+.flow-simple-box:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(8, 79, 151, 0.5);
+}
+
+.flow-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.step-number {
+  background-color: var(--accent-color);
+  color: var(--white);
+  border-radius: 50%;
+  padding: 12px 18px;
+  font-size: 26px;
+  font-weight: 700;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.step-icon {
+  font-size: 42px;
+  color: var(--accent-color);
+}
+.yazi h1{
+  font-weight: 500;
+  font-size: 45px;
+  color: #001b58;
+}
+.step-title-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.flow-simple-box p {
+  font-size: 18px;
+  color: var(--text-light);
+  line-height: 1.5;
+  font-weight: 500;
+  margin-top: 12px;
+  padding: 0 12px;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .flow-simple-box {
+    height: auto;
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .step-icon {
+    font-size: 32px;
+  }
+
+  .step-title-text {
+    font-size: 22px;
+  }
+
+  .flow-simple-box p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .yazi h1 {
+    font-size: 32px;
+  }
+}

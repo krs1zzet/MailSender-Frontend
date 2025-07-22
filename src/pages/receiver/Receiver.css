@@ -1,8 +1,15 @@
 .new-receiver{
-    width: 150px;
-    height: 56px;
+    width: 180px;
+    height: 75px;
     margin-right: 5px;
     background-color: #0e2158;
     margin-top:10px;
-    font-size: medium;
+    font-size: 22px;
+}
+.text{
+    color: rgb(4, 12, 98);
+    font-size: 27px;
+    font-weight: 700;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-top: 10px;
 }

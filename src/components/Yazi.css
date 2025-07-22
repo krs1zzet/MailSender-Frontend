@@ -1,0 +1,144 @@
+.gradient-container {
+  width: 100%;
+  max-height: 500px;
+  background: linear-gradient(135deg, #505358 0%, #030368 50%, #424850 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: var(--font-primary);
+  color: var(--white);
+  box-shadow: inset 0 0 50px rgba(15, 20, 25, 0.3);
+  transition: background 0.5s ease;
+}
+
+.content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  position: relative;
+}
+
+.center-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 50px;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 2rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.description {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 400;
+}
+
+
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .hero-content-container {
+    width: 100%;
+    height: auto;
+    min-height: 50vh;
+    background: rgba(248, 250, 252, 0.95);
+    order: 2;
+  }
+
+  .hero-image-container {
+    width: 100%;
+    height: 50vh;
+    order: 1;
+  }
+
+  .features {
+    align-items: center;
+  }
+
+  .feature-item {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .create-button-container {
+    margin-top: 2rem;
+  }
+
+  .create-button {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  .content-wrapper {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .center-content {
+    padding: 0 20px;
+  }
+
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .feature-title,
+  .feature-subtitle {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar-menu {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-image-container {
+    height: 40vh;
+  }
+
+  .create-button {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+
+  .create-button-text {
+    font-size: 0.9rem;
+  }
+
+  .brand-text {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    margin-left: 10px;
+  }
+
+  .login-btn {
+    font-size: 14px;
+    padding: 5px 10px;
+  }
+}

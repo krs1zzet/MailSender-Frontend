@@ -1,0 +1,127 @@
+.footerr {
+  background: linear-gradient(135deg, #374967 0%, #010146 50%, #3a4655 100%);
+  color: #e0e7ff; /* açık, yumuşak mavi-beyaz ton */
+  padding: 40px 24px 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  height: 400px;
+}
+
+
+.footerr-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 50px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #dad9d4;
+}
+
+.newsletter h4,
+.follow-title {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: #fcfcfc;
+  letter-spacing: 0.5px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.newsletter-form input {
+  padding: 10px 14px;
+  border: 1px solid #fcfcfc;
+  background-color: #ffffff;
+  color: #fcfcfc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 20px;
+  width: 220px;
+  transition: border-color 0.3s ease;
+}
+
+.newsletter-form input:focus {
+  border-color: #dad9d4;
+}
+
+.newsletter-form button {
+  background-color: #fcfcfc;
+  color: #232323;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+  background-color: #dad9d4;
+  color: #121212;
+}
+
+.social-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.social-icons a {
+  color: #fcfcfc;
+  text-decoration: none;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icons a:hover {
+  transform: scale(1.2);
+  color: #dad9d4;
+}
+
+.email {
+  font-size: 24px;
+  color: #fcfcfc;
+  opacity: 0.9;
+}
+
+.footer-bottom {
+  margin-top: 24px;
+  padding-top: 16px;
+  font-size: 20px;
+  color: #dad9d4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 1px solid #dad9d4;
+}
+
+.developed-by {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.developer-logo {
+  height: 26px;
+  width: auto;
+  opacity: 0.85;
+  transition: transform 0.3s ease;
+}
+
+.developer-logo:hover {
+  transform: scale(1.1);
+}
