@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import FlowChart from './FlowChart';
 import "./Navigationn.css";
 import Istatistik from "./Istatistik/Istatistik";
-import Yazi from "./Yazi";
+import Yazi from "./TextBlock";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import TextBlock from "./TextBlock";
 
 const HeroSection = ({ openAuthModal }) => {
     useEffect(() => {
@@ -25,7 +26,7 @@ const HeroSection = ({ openAuthModal }) => {
             
             {/* Yazı bölümü - soldan slide in */}
            
-                <Yazi />
+                <TextBlock />
             
             
             {/* SVG container - zoom in effect */}

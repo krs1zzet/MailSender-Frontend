@@ -1,7 +1,7 @@
 import React from 'react';
-import './Yazi.css';
+import './TextBlock.css';
 
-const Yazi = () => {
+const TextBlock = () => {
   return (
     <div className="gradient-container">
       <div className="content-wrapper">
@@ -26,4 +26,4 @@ const Yazi = () => {
   );
 };
 
-export default Yazi;
+export default TextBlock;
