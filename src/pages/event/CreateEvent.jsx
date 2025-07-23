@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import API_CONFIG from '../../api/apiConfig'; // ÖNEMLİ: Bu dosya yolunun projenizde doğru olduğundan emin olun
 import './CreateEvent.css'; // Import the CSS file
 
 const CreateEvent = () => {
@@ -11,7 +12,6 @@ const CreateEvent = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    // handleSubmit fonksiyonu burada
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -25,7 +25,9 @@ const CreateEvent = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/events', {
+            // --- DEĞİŞİKLİK BURADA YAPILDI ---
+            // Hardcoded URL yerine merkezi API_CONFIG dosyasını kullanıyoruz
+            const response = await fetch(API_CONFIG.getUrl('api/events'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,10 +46,12 @@ const CreateEvent = () => {
             }
 
             const responseText = await response.text();
-            if (responseText.trim()) {
+            // Backend'den boş cevap gelebileceği ihtimaline karşı kontrol ekliyoruz
+            if (responseText && responseText.trim()) {
                 const data = JSON.parse(responseText);
                 navigate(`/events/${data.id}`);
             } else {
+                // Başarılı ama boş cevap durumunda etkinlikler sayfasına yönlendir
                 navigate('/events');
             }
         } catch (error) {
@@ -116,7 +120,5 @@ const CreateEvent = () => {
         </div>
     );
 };
-
-
 
 export default CreateEvent;
