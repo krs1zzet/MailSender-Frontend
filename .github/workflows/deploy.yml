@@ -1,0 +1,46 @@
+name: Deploy Frontend to AWS
+
+on:
+  push:
+    branches:
+      - main # Sadece 'main' branch'ine push yapıldığında çalışsın
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Kodu repository'den çek
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Burayı '22' olarak güncelledik
+          cache: 'npm'
+
+      # 3. Projeyi derle (build et)
+      - name: Install dependencies and build
+        run: |
+          npm install
+          npm run build
+
+      # 4. AWS kimlik bilgilerini ayarla
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 5. Derlenen dosyaları S3'ye yükle
+      - name: Sync files to S3
+        run: |
+          aws s3 sync ./build s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          # Not: Projen 'build' yerine 'dist' klasörü oluşturuyorsa ./build kısmını ./dist olarak değiştir.
+
+      # 6. CloudFront cache'ini temizle (yeni dosyaları görsün diye)
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"

@@ -126,3 +126,5 @@ The API URL is set to `https://54.172.234.3:8080` by default. You can customize 
 1. Go to Site settings > Build & deploy > Environment
 2. Add a variable named `REACT_APP_API_URL` with your backend URL
 3. Trigger a new deploy for changes to take effect
+
+
