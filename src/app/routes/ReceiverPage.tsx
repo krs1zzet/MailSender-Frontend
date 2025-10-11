@@ -12,26 +12,27 @@ export default function ReceiverPage() {
     const [editing, setEditing] = useState<ReceiverDTO | null>(null);
     const { id } = useParams<{ id: string }>();
     const eventId = Number(id);
-    
-    const {data: receivers, isLoading, error} = useReceiversByEventId(eventId);
+
+    const { data: receivers, isLoading, error } = useReceiversByEventId(eventId);
     const deleteReceiver = useDeleteReceiver();
     const createReceiver = useCreateReceivers();
     const updateReceiver = useUpdateReceiver();
-    
-    
+
+
 
 
     const handleCreate = async (values: CreateReceiverInput) => {
-        if(!eventId || Number.isNaN(eventId)) {
+        if (!eventId || Number.isNaN(eventId)) {
             console.error("Gecersiz EventId");
             return;
         }
-        await createReceiver.mutateAsync({...values,eventId});
+        console.log("creating receivers in page");
+        await createReceiver.mutateAsync({ ...values, eventId });
         setOpen(false);
     }
 
     const handleUpdate = async (values: updateReceiverInput) => {
-        if(!editing) return;
+        if (!editing) return;
         await updateReceiver.mutateAsync({
             id: editing.id,
             input: values,
@@ -42,7 +43,7 @@ export default function ReceiverPage() {
     }
 
     const handleDelete = async (receiver: ReceiverDTO) => {
-        await deleteReceiver.mutateAsync({id:receiver.id,eventId})
+        await deleteReceiver.mutateAsync({ id: receiver.id, eventId })
     }
 
     const openEdit = (receiver: ReceiverDTO) => {
@@ -69,6 +70,7 @@ export default function ReceiverPage() {
                 >
                     Create Receiver
                 </button>
+
                 <Modal
                     open={open}
                     onClose={onCloseModal}
@@ -84,10 +86,37 @@ export default function ReceiverPage() {
                     >
 
                     </ReceiverForm>
-
-                    {!receivers}
-
                 </Modal>
+
+                {!receivers || receivers.length === 0 ? (
+                    <p>No receivers found</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {receivers.map((receiver) => (
+                            <div
+                                key={receiver.id}
+                                onClick={() => openEdit(receiver)}
+                                className="border rounded-lg shadow p-6 bg-white hover:shadow-lg transition cursor-pointer group relative"
+                            >
+                                <h2 className="text-xl font-bold mb-2">{receiver.email}</h2>
+                                <p className="text-m  ">{receiver.fname}</p>
+                                <p className="text-m  ">{receiver.lname}</p>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(receiver);
+                                    }}
+                                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition px-2 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+
+                        ))}
+                    </div>
+                )}
+
+
 
             </div>
         </>

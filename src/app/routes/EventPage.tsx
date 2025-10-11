@@ -2,16 +2,18 @@
 import { useState } from "react";
 import Modal from "../../components/ui/Modal";
 import EventForm from "../../features/event/components/EventForm";
-import { useCreateEvent, useEvents } from "../../features/event/hooks/useEvent";
+import { useCreateEvent, useDeleteEvent, useEvents } from "../../features/event/hooks/useEvent";
 import { localDatetimeToISO } from "../../utils/dateMapper";
-import { CreateEventInput } from "../../features/event/types/event";
+import { CreateEventInput, EventDTO } from "../../features/event/types/event";
 import { Navigate, useNavigate } from "react-router";
+import { deleteEvent } from "../../features/event/api/eventApi";
 
 export default function EventPage() {
   const { data: events, isLoading, error } = useEvents();
   const createEvent = useCreateEvent();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const deleteEvent = useDeleteEvent();
  
 
   const handleCreate = async (values: CreateEventInput) => {
@@ -19,6 +21,10 @@ export default function EventPage() {
     await createEvent.mutateAsync(values);
     setOpen(false);
   };
+
+  const handleDelete = async (input:EventDTO) => {
+    await deleteEvent.mutateAsync(input.id);
+  }
 
   if (isLoading) {
     return (
@@ -60,13 +66,20 @@ export default function EventPage() {
             <div
               onClick={() => navigate(`/events/${event.id}`)}   // ✅ burası
               key={event.id}
-              className="border rounded-lg shadow p-6 bg-white hover:shadow-lg transition"
+              className="border rounded-lg shadow p-6 bg-white hover:shadow-lg transition cursor-pointer group relative"
             >
               <h2 className="text-xl font-bold mb-2">{event.name}</h2>
               <p className="text-gray-600">{event.description}</p>
               <p className="text-sm text-gray-500">
                 {new Date(event.date).toLocaleString()}
               </p>
+              <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(event);
+              }}
+              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition px-2 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700"
+              >Delete</button>
             </div>
           ))}
         </div>

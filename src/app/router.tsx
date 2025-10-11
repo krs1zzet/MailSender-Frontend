@@ -10,6 +10,8 @@ import EventPage from "./routes/EventPage";
 import EventDetailPage from "./routes/EventDetailPage";
 import MailTemplatePage from "./routes/MailTemplatePage";
 import ReceiverPage from "./routes/ReceiverPage";
+import SenderPage from "./routes/SenderPage";
+import SendMailPage from "./routes/SendMailPage";
 
 export default function Router() {
   return (
@@ -22,7 +24,8 @@ export default function Router() {
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path="/events/:id/templates" element={<MailTemplatePage />} />
           <Route path="/events/:id/receivers" element={<ReceiverPage/>} />
-          <Route path="/events/:id/senders" element={<MailTemplatePage />} />
+          <Route path="/events/:id/senders" element={<SenderPage />} />
+          <Route path="events/:id/send-mail" element={<SendMailPage />} />
 
           <Route path="/" element={<Navigate to="/HeroPage" replace />} />
 

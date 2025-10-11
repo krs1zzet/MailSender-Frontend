@@ -27,6 +27,12 @@ export default function EventDetailPage() {
         >
           <h2 className="text-xl font-bold mb-2">Sender</h2>
         </button>
+        <button
+          onClick={() => navigate(`/events/${id}/send-mail`)}
+          className="text-left border rounded-lg shadow p-6 bg-white group hover:shadow-lg transition"
+        >
+          <h2 className="text-xl text-red-500 group-hover:text-red-600 font-bold mb-2">Send Mail</h2>
+        </button>
       </div>
     </div>
   );
