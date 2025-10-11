@@ -1,5 +1,5 @@
 import { http } from "../../../lib/http";
-import { MailDTO, SendMailRequest } from "../types/sendMail";
+import { MailDTO, SendMailRequest } from "../types/Send";
 
 
 export async function sendMail(input:SendMailRequest): Promise<MailDTO> {

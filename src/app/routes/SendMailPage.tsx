@@ -8,7 +8,7 @@ import { TemplateDTO } from "../../features/mailTemplate/types/mailTemplate";
 import { SenderDTO } from "../../features/sender/types/Sender";
 import { ReceiverDTO } from "../../features/receiver/types/Receiver";
 import { useSendMail } from "../../features/sendMail/hooks/useSendMail";
-import { SendMailRequest } from "../../features/sendMail/types/sendMail";
+import { SendMailRequest } from "../../features/sendMail/types/Send";
 
 
 export default function SendMailPage() {
